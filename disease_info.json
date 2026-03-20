@@ -1,0 +1,169 @@
+{
+  "Acne": {
+    "description": "Acne is a skin condition that occurs when hair follicles become clogged with oil and dead skin cells.",
+    "causes": "Hormonal changes, oily skin, bacteria",
+    "precautions": "Keep skin clean, avoid oily cosmetics, maintain healthy diet",
+    "image": "acne.jpg"
+  },
+
+  "Arthritis": {
+    "description": "Arthritis is inflammation of one or more joints causing pain and stiffness.",
+    "causes": "Age, joint wear and tear, autoimmune conditions",
+    "precautions": "Regular exercise, maintain healthy weight, avoid joint injuries",
+    "image": "arthritis.jpg"
+  },
+
+  "Bronchial Asthma": {
+    "description": "Bronchial Asthma is a condition where airways narrow and swell, producing extra mucus.",
+    "causes": "Allergens, air pollution, respiratory infections",
+    "precautions": "Avoid triggers, use inhalers as prescribed, keep environment clean",
+    "image": "bronchial_asthma.jpg"
+  },
+
+  "Cervical spondylosis": {
+    "description": "Cervical spondylosis is age-related wear and tear affecting spinal disks in the neck.",
+    "causes": "Aging, poor posture, neck strain",
+    "precautions": "Maintain good posture, regular neck exercises, ergonomic workspace",
+    "image": "cervical_spondylosis.jpg"
+  },
+
+  "Chicken pox": {
+    "description": "Chicken pox is a contagious viral infection causing itchy rash and red spots.",
+    "causes": "Varicella-zoster virus",
+    "precautions": "Vaccination, avoid contact with infected individuals",
+    "image": "chicken_pox.jpg"
+  },
+
+  "Common Cold": {
+    "description": "Common Cold is a viral infection of the upper respiratory tract.",
+    "causes": "Rhinovirus and other viruses",
+    "precautions": "Wash hands frequently, avoid close contact with sick people",
+    "image": "common_cold.jpg"
+  },
+
+  "Dengue": {
+    "description": "Dengue is a mosquito-borne viral infection causing high fever and joint pain.",
+    "causes": "Aedes mosquito bites",
+    "precautions": "Use mosquito repellents, remove stagnant water",
+    "image": "dengue.jpg"
+  },
+
+  "Dimorphic Hemorrhoids": {
+    "description": "Dimorphic Hemorrhoids are swollen veins in the lower rectum and anus.",
+    "causes": "Straining during bowel movements, chronic constipation",
+    "precautions": "High-fiber diet, drink plenty of water, avoid prolonged sitting",
+    "image": "hemorrhoids.jpg"
+  },
+
+  "Fungal infection": {
+    "description": "Fungal infection is a skin disease caused by fungi affecting skin, nails, or hair.",
+    "causes": "Warm and moist environment, weak immunity",
+    "precautions": "Keep skin dry, maintain hygiene, avoid sharing personal items",
+    "image": "fungal_infection.jpg"
+  },
+
+  "Hypertension": {
+    "description": "Hypertension is a condition in which blood pressure levels are consistently high.",
+    "causes": "High salt intake, stress, obesity",
+    "precautions": "Reduce salt intake, regular exercise, monitor blood pressure",
+    "image": "hypertension.jpg"
+  },
+
+  "Impetigo": {
+    "description": "Impetigo is a contagious bacterial skin infection causing red sores.",
+    "causes": "Staphylococcus or Streptococcus bacteria",
+    "precautions": "Maintain hygiene, avoid scratching, wash hands regularly",
+    "image": "impetigo.jpg"
+  },
+
+  "Jaundice": {
+    "description": "Jaundice is a condition causing yellowing of skin and eyes due to liver issues.",
+    "causes": "Liver infection, hepatitis, bile duct obstruction",
+    "precautions": "Avoid alcohol, maintain hygiene, get vaccinated for hepatitis",
+    "image": "jaundice.jpg"
+  },
+
+  "Malaria": {
+    "description": "Malaria is a parasitic disease transmitted by infected mosquitoes.",
+    "causes": "Plasmodium parasite through mosquito bites",
+    "precautions": "Use mosquito nets, insect repellents",
+    "image": "malaria.jpg"
+  },
+
+  "Migraine": {
+    "description": "Migraine is a neurological condition causing intense headaches.",
+    "causes": "Stress, hormonal changes, lack of sleep",
+    "precautions": "Avoid triggers, regular sleep schedule, stress management",
+    "image": "migraine.jpg"
+  },
+
+  "Pneumonia": {
+    "description": "Pneumonia is an infection that inflames air sacs in one or both lungs.",
+    "causes": "Bacteria, viruses, or fungi",
+    "precautions": "Vaccination, good hygiene, avoid smoking",
+    "image": "pneumonia.jpg"
+  },
+
+  "Psoriasis": {
+    "description": "Psoriasis is a chronic autoimmune condition causing rapid skin cell buildup.",
+    "causes": "Immune system dysfunction, genetic factors",
+    "precautions": "Moisturize skin, avoid stress, follow prescribed treatment",
+    "image": "psoriasis.jpg"
+  },
+
+  "Typhoid": {
+    "description": "Typhoid is a bacterial infection caused by Salmonella Typhi.",
+    "causes": "Contaminated food and water",
+    "precautions": "Drink clean water, wash hands, avoid street food",
+    "image": "typhoid.jpg"
+  },
+
+  "Varicose Veins": {
+    "description": "Varicose Veins are enlarged, twisted veins usually appearing in legs.",
+    "causes": "Weak vein valves, prolonged standing",
+    "precautions": "Exercise regularly, avoid long standing, elevate legs",
+    "image": "varicose_veins.jpg"
+  },
+
+  "Allergy": {
+    "description": "Allergy is an immune system reaction to foreign substances.",
+    "causes": "Dust, pollen, certain foods, medications",
+    "precautions": "Avoid allergens, use prescribed medications",
+    "image": "allergy.jpg"
+  },
+
+  "Diabetes": {
+    "description": "Diabetes is a chronic condition affecting blood sugar regulation.",
+    "causes": "Insulin deficiency or resistance",
+    "precautions": "Healthy diet, regular exercise, monitor blood sugar",
+    "image": "diabetes.jpg"
+  },
+
+  "Drug reaction": {
+    "description": "Drug reaction is an unwanted effect caused by medication.",
+    "causes": "Allergic response or side effects of medicines",
+    "precautions": "Avoid self-medication, consult doctor before taking new drugs",
+    "image": "drug_reaction.jpg"
+  },
+
+  "Gastroesophageal reflux disease (GERD)": {
+    "description": "GERD is a digestive disorder where stomach acid irritates the food pipe.",
+    "causes": "Weak lower esophageal sphincter, obesity, spicy food",
+    "precautions": "Avoid spicy food, eat smaller meals, avoid lying down after eating",
+    "image": "gerd.jpg"
+  },
+
+  "Peptic ulcer disease": {
+    "description": "Peptic ulcer disease involves sores that develop on the lining of the stomach.",
+    "causes": "Helicobacter pylori infection, prolonged NSAID use",
+    "precautions": "Avoid NSAIDs misuse, limit alcohol, eat balanced diet",
+    "image": "peptic_ulcer.jpg"
+  },
+
+  "Urinary tract infection": {
+    "description": "Urinary tract infection is an infection in any part of the urinary system.",
+    "causes": "Bacterial infection, poor hygiene",
+    "precautions": "Drink plenty of water, maintain hygiene, avoid holding urine",
+    "image": "uti.jpg"
+  }
+}
