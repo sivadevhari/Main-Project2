@@ -690,25 +690,7 @@
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light navbar-custom">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">
-                <i class="bi bi-heart-pulse"></i> IDPS
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="ms-auto d-flex align-items-center">
-                    <span style="color: #2d3436; font-weight: 500;">Welcome, {{ user_name }}</span>
-                    {% if session.is_admin %}
-                        <a href="/admin_panel" class="admin-btn"><i class="bi bi-shield-lock"></i> Admin</a>
-                    {% endif %}
-                    <a href="/logout" class="logout-btn">Logout</a>
-                </div>
-            </div>
-        </div>
-    </nav>
+{% include 'navbar.html' %}
 
 <div class="container" style="padding: 5px;">
     <div class="result-container">
@@ -915,4 +897,4 @@ function downloadReport() {
 </script>
 
 </body>
-</html> 
+</html>

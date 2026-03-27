@@ -327,23 +327,8 @@
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light navbar-custom">
-        <div class="container-fluid">
-           
-            <a class="navbar-brand" href="/">
-                <i class="bi bi-heart-pulse"></i> IDPS Admin
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="ms-auto d-flex align-items-center">
-                    <span style="color: var(--dark); font-weight: 500;">Welcome, {{ user_name }}</span>
-                    <a href="/logout" class="logout-btn">Logout</a>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <!-- Shared Navbar -->
+    {% include 'navbar.html' %}
 
     <!-- Admin Container -->
     <div class="admin-container">

@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file
 from main import load_model, predict_disease
-import json
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -11,31 +10,42 @@ from fpdf import FPDF
 app = Flask(__name__)
 app.secret_key = "your_secret_key_here"
 
-# Make session available in all templates
-@app.context_processor
-def inject_session():
-    return dict(session=session)
-
-# Load ML model
-model_data = load_model()
-
-# Load disease info
-with open("disease_info.json") as f:
-    disease_data = json.load(f)
-
-# Load admin emails
-with open("admins.json") as f:
-    admin_data = json.load(f)
-    ADMIN_EMAILS = admin_data.get("admin_emails", [])
-
 DB_NAME = "users.db"
 DIAGNOSTICS_FILE = "diagnostics.json"
 
+model_data = load_model()
+
+# --- DB connection helper must come first ---
 def get_db_connection():
     """Get database connection with row factory for named column access"""
     conn = sqlite3.connect(DB_NAME)
     conn.row_factory = sqlite3.Row
     return conn
+
+# Load disease info from SQLite
+def load_disease_data():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM disease_info")
+    rows = cursor.fetchall()
+    conn.close()
+    return {row['name']: {
+        'description': row['description'],
+        'causes': row['causes'],
+        'precautions': row['precautions'],
+        'image': row['image']
+    } for row in rows}
+
+disease_data = load_disease_data()
+def load_admin_emails():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT email FROM admins")
+    emails = [row['email'] for row in cursor.fetchall()]
+    conn.close()
+    return emails
+
+ADMIN_EMAILS = load_admin_emails()
 
 def init_db():
     conn = sqlite3.connect(DB_NAME)
@@ -50,24 +60,19 @@ def init_db():
             last_login TIMESTAMP
         )
     """)
-    
     # Check if address and last_login columns exist, if not add them
     cursor.execute("PRAGMA table_info(users)")
     columns = [col[1] for col in cursor.fetchall()]
-    
     if 'address' not in columns:
         cursor.execute("ALTER TABLE users ADD COLUMN address TEXT")
-    
     if 'last_login' not in columns:
         cursor.execute("ALTER TABLE users ADD COLUMN last_login TIMESTAMP")
-    
     conn.commit()
     conn.close()
-    
-    # Initialize diagnostics JSON file
+    # Initialize diagnostics JSON file (legacy, can be removed)
     if not os.path.exists(DIAGNOSTICS_FILE):
         with open(DIAGNOSTICS_FILE, 'w') as f:
-            json.dump([], f)
+            f.write('[]')
 
 init_db()
 
@@ -75,16 +80,24 @@ def is_admin(email):
     """Check if user email is in admin list"""
     return email in ADMIN_EMAILS
 
+
 def save_diagnostic_result(user_id, user_email, user_name, address, symptoms, disease, accuracy):
-    """Save diagnostic result to JSON file"""
-    try:
-        with open(DIAGNOSTICS_FILE, 'r') as f:
-            diagnostics = json.load(f)
-    except:
-        diagnostics = []
-    
-    result = {
-        "id": len(diagnostics) + 1,
+    """Save diagnostic result to SQLite database"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    cursor.execute(
+        """
+        INSERT INTO diagnostics (user_id, user_email, user_name, address, symptoms, disease, accuracy, timestamp)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (user_id, user_email, user_name, address, symptoms, disease, accuracy, timestamp)
+    )
+    conn.commit()
+    result_id = cursor.lastrowid
+    conn.close()
+    return {
+        "id": result_id,
         "user_id": user_id,
         "user_email": user_email,
         "user_name": user_name,
@@ -92,15 +105,8 @@ def save_diagnostic_result(user_id, user_email, user_name, address, symptoms, di
         "symptoms": symptoms,
         "disease": disease,
         "accuracy": accuracy,
-        "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        "timestamp": timestamp
     }
-    
-    diagnostics.append(result)
-    
-    with open(DIAGNOSTICS_FILE, 'w') as f:
-        json.dump(diagnostics, f, indent=2)
-    
-    return result
 
 @app.route("/")
 def welcome():
@@ -271,19 +277,21 @@ def download_report():
         
         # About
         pdf.set_font("Helvetica", 'B', 9)
-        pdf.cell(0, 6, "About This Condition:", 0, 1)
+        pdf.cell(0, 6, "About This Condition:", 0, 1, 'L')
         pdf.set_font("Helvetica", '', 9)
         pdf.multi_cell(0, 4, str(description)[:400])
-        
-        # Causes
+
+        # Causes (heading left, above data)
+        pdf.ln(2)
         pdf.set_font("Helvetica", 'B', 9)
-        pdf.cell(0, 6, "Common Causes:", 0, 1)
+        pdf.cell(0, 6, "Common Causes:", 0, 1, 'L')
         pdf.set_font("Helvetica", '', 9)
         pdf.multi_cell(0, 4, str(causes)[:400])
-        
-        # Precautions
+
+        # Precautions (heading left, above data)
+        pdf.ln(2)
         pdf.set_font("Helvetica", 'B', 9)
-        pdf.cell(0, 6, "Recommended Precautions:", 0, 1)
+        pdf.cell(0, 6, "Recommended Precautions:", 0, 1, 'L')
         pdf.set_font("Helvetica", '', 9)
         pdf.multi_cell(0, 4, str(precautions)[:400])
         
@@ -349,14 +357,14 @@ def admin_panel():
     cursor.execute("SELECT id, name, email, address, last_login FROM users ORDER BY last_login DESC")
     users = cursor.fetchall()
     
-    # Read diagnostics
-    diagnostics = []
-    try:
-        with open("diagnostics.json", "r") as f:
-            diagnostics = json.load(f)
-    except:
-        diagnostics = []
-    
+
+    # Read diagnostics from SQLite
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM diagnostics")
+    diagnostics = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+
     # Group diagnostics by user_id
     user_diagnostics = {}
     for diag in diagnostics:
@@ -364,7 +372,7 @@ def admin_panel():
         if user_id not in user_diagnostics:
             user_diagnostics[user_id] = []
         user_diagnostics[user_id].append(diag)
-    
+
     # Sort by timestamp (most recent first)
     for uid in user_diagnostics:
         user_diagnostics[uid].sort(key=lambda x: x.get("timestamp", ""), reverse=True)
@@ -375,6 +383,96 @@ def admin_panel():
         users=users,
         user_diagnostics=user_diagnostics,
         user_name=user_name
+    )
+
+@app.route("/history")
+def history():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    user_id = session["user_id"]
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM diagnostics WHERE user_id = ? ORDER BY timestamp DESC", (user_id,))
+    diagnostics = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return render_template("history.html", diagnostics=diagnostics, user_name=session.get("user_name"))
+
+# Download previous report by id
+@app.route("/download_report/<int:diag_id>")
+def download_report_by_id(diag_id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM diagnostics WHERE id = ? AND user_id = ?", (diag_id, session["user_id"]))
+    diag = cursor.fetchone()
+    conn.close()
+    if not diag:
+        flash("Report not found.", "danger")
+        return redirect(url_for("history"))
+    # Reuse the PDF generation logic
+    info = disease_data.get(diag["disease"], {})
+    from fpdf import FPDF
+    from io import BytesIO
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_auto_page_break(auto=True, margin=10)
+    pdf.set_font("Helvetica", 'B', 14)
+    pdf.set_text_color(0, 0, 0)
+    pdf.cell(0, 8, "INTELLIGENT DISEASE PREDICTION SYSTEM", 0, 1, 'L')
+    pdf.set_font("Helvetica", 'B', 10)
+    pdf.cell(0, 6, "MEDICAL ANALYSIS REPORT", 0, 1, 'L')
+    pdf.set_font("Helvetica", '', 8)
+    pdf.cell(0, 5, f"Generated: {diag['timestamp']}", 0, 1, 'R')
+    pdf.ln(3)
+    pdf.set_font("Helvetica", 'B', 9)
+    pdf.cell(40, 5, "Patient Name:", 0, 0)
+    pdf.set_font("Helvetica", '', 9)
+    pdf.cell(0, 5, str(diag['user_name'])[:40], 0, 1)
+    pdf.set_font("Helvetica", 'B', 9)
+    pdf.cell(40, 5, "Symptoms:", 0, 0)
+    pdf.set_font("Helvetica", '', 9)
+    pdf.cell(0, 5, str(diag['symptoms'])[:40], 0, 1)
+    pdf.ln(2)
+    pdf.set_font("Helvetica", 'B', 12)
+    pdf.set_text_color(30, 80, 150)
+    pdf.cell(0, 8, f"Predicted Disease: {str(diag['disease'])[:40]}", 0, 1, 'L')
+    pdf.set_text_color(0, 0, 0)
+    pdf.ln(4)
+    pdf.set_font("Helvetica", 'B', 9)
+    pdf.cell(0, 6, "About This Condition:", 0, 1, 'L')
+    pdf.set_font("Helvetica", '', 9)
+    pdf.multi_cell(0, 4, str(info.get("description", ""))[:400])
+    pdf.ln(2)
+    pdf.set_font("Helvetica", 'B', 9)
+    pdf.cell(0, 6, "Common Causes:", 0, 1, 'L')
+    pdf.set_font("Helvetica", '', 9)
+    pdf.multi_cell(0, 4, str(info.get("causes", ""))[:400])
+    pdf.ln(2)
+    pdf.set_font("Helvetica", 'B', 9)
+    pdf.cell(0, 6, "Recommended Precautions:", 0, 1, 'L')
+    pdf.set_font("Helvetica", '', 9)
+    pdf.multi_cell(0, 4, str(info.get("precautions", ""))[:400])
+    pdf.ln(3)
+    pdf.set_font("Helvetica", 'B', 8)
+    pdf.set_text_color(150, 100, 0)
+    pdf.cell(0, 5, "DISCLAIMER & MODEL ACCURACY", 0, 1)
+    pdf.set_font("Helvetica", '', 8)
+    pdf.set_text_color(100, 70, 0)
+    pdf.cell(0, 5, f"Model Accuracy: {diag['accuracy']}", 0, 1)
+    disclaimer = "This application provides initial guidance based on machine learning and does NOT replace professional medical advice. Please consult a qualified healthcare professional."
+    pdf.multi_cell(0, 4, disclaimer)
+    pdf_output = pdf.output(dest='S')
+    if isinstance(pdf_output, str):
+        pdf_bytes = pdf_output.encode('latin-1')
+    else:
+        pdf_bytes = pdf_output
+    pdf_buffer = BytesIO(pdf_bytes)
+    return send_file(
+        pdf_buffer,
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name=f"diagnosis_report_{diag['timestamp'].replace(':','-').replace(' ','_')}.pdf"
     )
 
 if __name__ == "__main__":
