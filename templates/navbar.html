@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-custom">
+<nav class="navbar navbar-expand-lg navbar-light navbar-custom top-0">
     <div class="container-fluid">
         <a class="navbar-brand" href="/">
             <i class="bi bi-heart-pulse"></i> IDPS
@@ -8,22 +8,29 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto d-flex align-items-center">
-                <li class="nav-item">
-                    <span class="nav-link" style="color: var(--dark); font-weight: 500;">Welcome, {{ user_name }}</span>
-                </li>
                 {% if user_name %}
-                <li class="nav-item">
-                    <a href="/history" class="nav-link">History</a>
-                </li>
+                    <li class="nav-item">
+                        <span class="nav-link" style="color: #2d3436; font-weight: 500;">Welcome, {{ user_name }}</span>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/history" class="nav-link">History</a>
+                    </li>
+                    {% if session.is_admin %}
+                    <li class="nav-item">
+                        <a href="/admin_panel" class="admin-btn"><i class="bi bi-shield-lock"></i> Admin</a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a href="/logout" class="logout-btn">Logout</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a href="/login" class="nav-link">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/signup" class="nav-link">Signup</a>
+                    </li>
                 {% endif %}
-                {% if session.is_admin %}
-                <li class="nav-item">
-                    <a href="/admin_panel" class="admin-btn"><i class="bi bi-shield-lock"></i> Admin</a>
-                </li>
-                {% endif %}
-                <li class="nav-item">
-                    <a href="/logout" class="logout-btn">Logout</a>
-                </li>
             </ul>
         </div>
     </div>

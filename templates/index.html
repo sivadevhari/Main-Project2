@@ -169,36 +169,7 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light navbar-custom">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">
-                <i class="bi bi-heart-pulse"></i> IDPS
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto d-flex align-items-center">
-                    <li class="nav-item">
-                        <span style="color: #2d3436; font-weight: 500;" class="nav-link">Welcome, {{ user_name }}</span>
-                    </li>
-                    {% if user_name %}
-                    <li class="nav-item">
-                        <a href="/history" class="nav-link">History</a>
-                    </li>
-                    {% endif %}
-                    {% if session.is_admin %}
-                    <li class="nav-item">
-                        <a href="/admin_panel" class="admin-btn"><i class="bi bi-shield-lock"></i> Admin</a>
-                    </li>
-                    {% endif %}
-                    <li class="nav-item">
-                        <a href="/logout" class="logout-btn">Logout</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    {% include 'navbar.html' %}
 
     <div class="main-content">
         <div class="container mt-5">
