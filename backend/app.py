@@ -389,6 +389,8 @@ def predict():
         "image": info.get("image", "default.jpg"),
         "accuracy": f"{accuracy:.2%}",
         "diagnostic_id": diagnostic["id"],
+        "user_name": session["user_name"],
+        "user_email": session["user_email"],
         "doctor": doctor_info.get("doctor"),
         "doctor_description": doctor_info.get("description")
     })

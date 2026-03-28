@@ -248,17 +248,27 @@ export default function AdminUserHistory() {
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-700 flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      Date & Time
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        Date & Time
+                      </div>
                     </th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-700 flex items-center gap-2">
-                      <Activity className="w-4 h-4" />
-                      Symptoms
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Activity className="w-4 h-4" />
+                        Symptoms
+                      </div>
                     </th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-700">Disease</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-700">Accuracy</th>
-                    <th className="text-center py-4 px-6 font-semibold text-gray-700">Actions</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm">
+                      Disease
+                    </th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm">
+                      Accuracy
+                    </th>
+                    <th className="text-center py-4 px-6 font-semibold text-gray-700 text-sm">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -272,27 +282,32 @@ export default function AdminUserHistory() {
                         index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
                       }`}
                     >
-                      <td className="py-4 px-6 text-gray-600 text-sm">
+                      <td className="py-4 px-6 text-gray-600 text-sm align-middle">
                         {new Date(item.timestamp).toLocaleString()}
                       </td>
-                      <td className="py-4 px-6 text-gray-700 max-w-xs truncate text-sm">
-                        {item.symptoms}
+                      <td className="py-4 px-6 text-gray-700 text-sm align-middle">
+                        <div className="max-w-xs truncate" title={item.symptoms}>
+                          {item.symptoms}
+                        </div>
                       </td>
-                      <td className="py-4 px-6">
-                        <span className="inline-block px-3 py-1.5 rounded-full text-sm font-medium bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 border border-blue-200">
+                      <td className="py-4 px-6 align-middle">
+                        <span className="inline-block px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 border border-blue-200">
                           {item.disease}
                         </span>
                       </td>
-                      <td className="py-4 px-6 text-gray-600 text-sm font-medium">
+                      <td className="py-4 px-6 text-gray-600 text-sm font-medium align-middle">
                         {item.accuracy}
                       </td>
-                      <td className="py-4 px-6 text-center">
+                      <td className="py-4 px-6 text-center align-middle">
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          onClick={() => handleDownload(item)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDownload(item);
+                          }}
                           disabled={downloading === item.id}
-                          className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto shadow-md hover:shadow-lg"
+                          className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mx-auto shadow-md hover:shadow-lg"
                         >
                           {downloading === item.id ? (
                             <>

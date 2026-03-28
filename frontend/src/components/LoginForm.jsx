@@ -49,7 +49,7 @@ export default function LoginForm() {
       className="relative"
     >
       {/* Glassmorphism Card */}
-      <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl w-full max-w-md p-8 relative border border-white/20">
+      <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl w-full min-w-xl p-8 sm:p-10 relative border border-white/20">
         {/* Decorative Elements */}
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-2xl"></div>
         <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 rounded-full blur-2xl"></div>
