@@ -3,26 +3,48 @@
 const API_BASE = '/api';
 
 export async function getSession() {
+  console.log('=== getSession called ===');
   const res = await fetch(`${API_BASE}/session`, {
     credentials: 'include',
     headers: {
       'Accept': 'application/json'
     }
   });
-  return res.json();
+  const data = await res.json();
+  console.log('Session response:', data);
+  console.log('Set-Cookie header present:', res.headers.has('Set-Cookie'));
+  return data;
 }
 
 export async function login(email, password) {
-  const res = await fetch(`${API_BASE}/login`, {
-    method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    credentials: 'include',
-    body: JSON.stringify({ email, password })
-  });
-  return res.json();
+  console.log('=== login called ===');
+  console.log('Login credentials:', { email, password: '***' });
+  console.log('API_BASE:', API_BASE);
+  console.log('Full login URL:', `${API_BASE}/login`);
+  
+  try {
+    const res = await fetch(`${API_BASE}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      credentials: 'include',  // Important: send/receive cookies
+      body: JSON.stringify({ email, password })
+    });
+    
+    console.log('Response status:', res.status);
+    console.log('Response headers:', Object.fromEntries(res.headers.entries()));
+    console.log('Set-Cookie header present:', res.headers.has('Set-Cookie'));
+    
+    const data = await res.json();
+    console.log('Login response data:', data);
+    
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
 }
 
 export async function signup(name, address, email, password) {
@@ -76,9 +98,13 @@ export async function getAdminPanel() {
 }
 
 export async function logout() {
-  await fetch(`${API_BASE}/logout_confirm`, {
-    credentials: 'include'
+  console.log('=== logout called ===');
+  const res = await fetch(`${API_BASE}/logout_confirm`, {
+    credentials: 'include'  // Important: send cookies for logout
   });
+  console.log('Logout response status:', res.status);
+  console.log('Set-Cookie header present:', res.headers.has('Set-Cookie'));
+  return res;
 }
 
 export async function downloadReport(data) {

@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Activity, LogOut, User, Shield, Home, FileText } from 'lucide-react';
 import { useAuth } from '../lib/auth';
 import { logout } from '../lib/api';
 
@@ -14,53 +16,95 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="px-8 py-4 flex justify-between items-center shadow-lg" style={{
-      background: 'rgba(255, 255, 255, 0.95)',
-      backdropFilter: 'blur(10px)',
-      WebkitBackdropFilter: 'blur(10px)',
-      borderBottom: '1px solid rgba(255, 255, 255, 0.3)',
-      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
-    }}>
-      <Link to="/" className="text-[#0984e3] font-bold text-xl no-underline hover:opacity-80 transition-opacity">
-        Disease Predictor
+    <motion.nav
+      initial={{ y: -100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="px-6 py-4 flex justify-between items-center sticky top-0 z-50"
+      style={{
+        background: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.3)',
+        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)'
+      }}
+    >
+      <Link to="/" className="flex items-center gap-2 text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text font-bold text-2xl no-underline hover:opacity-80 transition-opacity">
+        <Activity className="w-7 h-7 text-blue-600" />
+        <span className="hidden sm:inline">Disease Predictor</span>
       </Link>
-      <div className="flex items-center gap-6">
-        <Link to="/" className="text-[#2d3436] font-medium no-underline hover:text-[#0984e3] transition-colors">Home</Link>
-        <Link to="/predict" className="text-[#2d3436] font-medium no-underline hover:text-[#0984e3] transition-colors">Predict</Link>
+
+      <div className="flex items-center gap-2 sm:gap-4">
+        <Link
+          to="/"
+          className="flex items-center gap-1.5 px-3 py-2 text-gray-700 font-medium no-underline hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 text-sm sm:text-base"
+        >
+          <Home className="w-4 h-4" />
+          <span className="hidden sm:inline">Home</span>
+        </Link>
+        <Link
+          to="/predict"
+          className="flex items-center gap-1.5 px-3 py-2 text-gray-700 font-medium no-underline hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 text-sm sm:text-base"
+        >
+          <Activity className="w-4 h-4" />
+          <span className="hidden sm:inline">Predict</span>
+        </Link>
         {user ? (
           <>
-            <Link to="/history" className="text-[#2d3436] font-medium no-underline hover:text-[#0984e3] transition-colors">History</Link>
+            <Link
+              to="/history"
+              className="flex items-center gap-1.5 px-3 py-2 text-gray-700 font-medium no-underline hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 text-sm sm:text-base"
+            >
+              <FileText className="w-4 h-4" />
+              <span className="hidden sm:inline">History</span>
+            </Link>
             {user.is_admin && (
-              <Link 
-                to="/admin" 
-                className="inline-block px-5 py-2 rounded-[20px] text-white font-medium no-underline transition-all duration-300 hover:scale-[1.05] hover:shadow-[0_5px_15px_rgba(102,126,234,0.4)]"
+              <Link
+                to="/admin"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-white font-medium no-underline transition-all duration-300 hover:scale-105 hover:shadow-lg"
                 style={{
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  border: 'none'
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
                 }}
               >
-                🛡️ Admin Panel
+                <Shield className="w-4 h-4" />
+                <span className="hidden sm:inline">Admin</span>
               </Link>
             )}
-            <button
+            <motion.button
               onClick={handleLogout}
-              className="px-5 py-2 rounded-[20px] text-white font-medium no-underline transition-all duration-300 hover:scale-[1.05] hover:bg-[#0770c9]"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full text-white font-medium transition-all duration-300 hover:shadow-lg"
               style={{
-                background: '#0984e3',
-                border: 'none',
-                cursor: 'pointer'
+                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
               }}
             >
-              Logout
-            </button>
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Logout</span>
+            </motion.button>
           </>
         ) : (
           <>
-            <Link to="/login" className="text-[#2d3436] font-medium no-underline hover:text-[#0984e3] transition-colors">Login</Link>
-            <Link to="/signup" className="text-[#2d3436] font-medium no-underline hover:text-[#0984e3] transition-colors">Signup</Link>
+            <Link
+              to="/login"
+              className="flex items-center gap-1.5 px-4 py-2 text-gray-700 font-medium no-underline hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 text-sm sm:text-base"
+            >
+              <User className="w-4 h-4" />
+              <span className="hidden sm:inline">Login</span>
+            </Link>
+            <Link
+              to="/signup"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full text-white font-medium no-underline transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              style={{
+                background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
+              }}
+            >
+              <User className="w-4 h-4" />
+              <span className="hidden sm:inline">Sign Up</span>
+            </Link>
           </>
         )}
       </div>
-    </nav>
+    </motion.nav>
   );
 }

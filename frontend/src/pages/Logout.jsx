@@ -1,4 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { LogOut, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import { logout } from '../lib/api';
@@ -7,35 +9,75 @@ export default function Logout() {
   const navigate = useNavigate();
   const { logout: authLogout } = useAuth();
 
-  useEffect(() => {
+  React.useEffect(() => {
     const performLogout = async () => {
       try {
         await logout();
       } catch (e) {
         // Ignore errors
+      } finally {
+        authLogout();
+        setTimeout(() => navigate('/login'), 1000);
       }
-      authLogout();
-      localStorage.clear();
-      sessionStorage.clear();
-      setTimeout(() => navigate('/login'), 1000);
     };
     performLogout();
   }, [navigate, authLogout]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
-      <div className="bg-white p-8 rounded-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] w-full max-w-md text-center" style={{
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)'
-      }}>
-        <div className="mb-4">
-          <svg className="w-16 h-16 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600"></div>
+      
+      {/* Animated circles */}
+      <motion.div
+        className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl"
+        animate={{ y: [-10, 10, -10], x: [-10, 10, -10] }}
+        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute bottom-20 right-10 w-96 h-96 bg-white/10 rounded-full blur-3xl"
+        animate={{ y: [10, -10, 10], x: [10, -10, 10] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+      />
+
+      {/* Content */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="relative z-10"
+      >
+        <div className="bg-white/95 backdrop-blur-xl p-10 rounded-3xl shadow-2xl w-full max-w-md text-center border border-white/20">
+          {/* Icon */}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+            className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full mb-6 shadow-xl"
+          >
+            <CheckCircle className="w-10 h-10 text-white" />
+          </motion.div>
+
+          {/* Title */}
+          <h2 className="text-3xl font-bold text-gray-800 mb-3">
+            Logged Out Successfully
+          </h2>
+          
+          <p className="text-gray-600 mb-6">
+            You have been securely logged out of your account.
+          </p>
+
+          {/* Loading indicator */}
+          <div className="flex items-center justify-center gap-3 text-gray-500">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full"
+            />
+            <span>Redirecting to login...</span>
+          </div>
         </div>
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">Logged Out Successfully</h2>
-        <p className="text-gray-600">Redirecting to login...</p>
-      </div>
+      </motion.div>
     </div>
   );
 }

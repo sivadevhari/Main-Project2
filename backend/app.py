@@ -12,13 +12,43 @@ from fpdf import FPDF
 
 app = Flask(__name__)
 # Set session cookie for cross-origin (React+Flask dev)
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Changed from None to Lax for same-origin
 app.config['SESSION_COOKIE_SECURE'] = False  # Set to True if using HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent JavaScript access (security)
+app.config['SESSION_COOKIE_PATH'] = '/'  # Cookie available across entire site
+app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 24 hours in seconds
 # Restrict CORS to frontend origin for local dev
 CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
-app.secret_key = "your_secret_key_here"
+app.secret_key = "your_secret_key_here"  # TODO: Use environment variable in production
 
 DB_NAME = "users.db"
+
+# ==========================================
+# SECURITY DECORATORS
+# ==========================================
+from functools import wraps
+
+def login_required(f):
+    """Decorator to require login for routes"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user_id" not in session:
+            return jsonify({"success": False, "message": "Authentication required. Please login."}), 401
+        return f(*args, **kwargs)  # Call the original function
+    return decorated_function
+
+def admin_required(f):
+    """Decorator to require admin privileges for routes"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user_id" not in session:
+            return jsonify({"success": False, "message": "Authentication required. Please login."}), 401
+        # Re-check admin status from database for security
+        user_email = session.get("user_email", "")
+        if not is_admin(user_email):
+            return jsonify({"success": False, "message": "Admin access required."}), 403
+        return f(*args, **kwargs)  # Call the original function
+    return decorated_function
 
 model_data = load_model()
 
@@ -28,24 +58,33 @@ model_data = load_model()
 # Place this after app = Flask(__name__) and all imports
 @app.route("/session", methods=["GET"])
 def session_info():
+    print("=" * 50)
+    print(f"Session endpoint called")
+    print(f"Request cookies: {request.cookies}")
+    print(f"Session cookie value: {request.cookies.get('session', 'NO SESSION COOKIE')}")
+    print(f"Session data: {dict(session)}")
+    print(f"Session keys: {session.keys()}")
+    print("=" * 50)
     if "user_id" in session:
         # Always re-check admin status from database for accuracy
         current_admin_status = is_admin(session.get("user_email", ""))
         # Update session if admin status changed
         if session.get("is_admin") != current_admin_status:
             session["is_admin"] = current_admin_status
-        print(f"session: user_id={session['user_id']}, email={session['user_email']}, is_admin={current_admin_status}")
+            session.modified = True
+        print(f"✓ User logged in: user_id={session['user_id']}, email={session['user_email']}, is_admin={current_admin_status}")
         return jsonify({
             "logged_in": True,
             "user": {
                 "id": session["user_id"],
                 "name": session["user_name"],
                 "email": session["user_email"],
-                "address": session["user_address"],
+                "address": session.get("user_address", ""),
                 "is_admin": current_admin_status
             }
         })
     else:
+        print("✗ No user_id in session - user not logged in")
         return jsonify({"logged_in": False, "user": None})
 
 # Debug endpoint to check session
@@ -55,7 +94,8 @@ def debug_session():
         "session": dict(session),
         "user_id": session.get("user_id"),
         "user_name": session.get("user_name"),
-        "user_email": session.get("user_email")
+        "user_email": session.get("user_email"),
+        "cookies_sent": request.cookies.get('session', 'No session cookie')
     })
 
 # --- DB connection helper must come first ---
@@ -217,6 +257,10 @@ def login():
             email = request.form["email"]
             password = request.form["password"]
 
+        print("=" * 50)
+        print(f"Login attempt for: {email}")
+        print(f"Request cookies before login: {request.cookies}")
+        
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
@@ -229,22 +273,37 @@ def login():
                 (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), user['id'])
             )
             conn.commit()
-            
+
             # Check admin status
             admin_status = is_admin(email)
             print(f"Login: {email} - is_admin: {admin_status}")
-            
+
+            # Set session data - mark as modified to ensure cookie is set
+            session.permanent = True  # Use configurable lifetime
             session["user_id"] = user['id']
             session["user_name"] = user['name']
             session["user_email"] = user['email']
             session["user_address"] = user['address']
             session["is_admin"] = admin_status
+            session.modified = True  # Explicitly mark session as modified
             conn.close()
-            if request.is_json:
-                return jsonify({"success": True, "message": "Login successful!", "user": {"id": user['id'], "name": user['name'], "email": user['email'], "address": user['address'], "is_admin": admin_status}})
-            else:
-                flash("Login successful!", "success")
-                return redirect(url_for("home"))
+            
+            print(f"Session data after login: {dict(session)}")
+            print(f"Session ID: {session.sid if hasattr(session, 'sid') else 'N/A'}")
+            print("=" * 50)
+            
+            # Create response with user data
+            return jsonify({
+                "success": True, 
+                "message": "Login successful!", 
+                "user": {
+                    "id": user['id'], 
+                    "name": user['name'], 
+                    "email": user['email'], 
+                    "address": user['address'], 
+                    "is_admin": admin_status
+                }
+            })
         else:
             conn.close()
             if request.is_json:
@@ -264,15 +323,36 @@ def logout():
 
 @app.route("/logout_confirm")
 def logout_confirm():
+    print("=" * 50)
+    print(f"Logout called")
+    print(f"Session before clear: {dict(session)}")
+    print(f"Session cookie: {request.cookies.get('session', 'NO COOKIE')}")
+    print("=" * 50)
+    
     session.clear()
     flash("Logged out successfully.", "info")
-    # Check if request is from React (JSON request)
-    if request.is_json or request.headers.get('Accept') == 'application/json':
-        return jsonify({"success": True, "message": "Logged out successfully"})
-    return redirect(url_for("login"))
+    
+    print(f"Session after clear: {dict(session)}")
+    
+    # Always return JSON for React frontend
+    response = jsonify({"success": True, "message": "Logged out successfully"})
+    # Remove the session cookie - must match exact cookie settings
+    response.set_cookie(
+        'session',
+        '',
+        expires=0,
+        max_age=0,
+        path='/',
+        httponly=True,
+        secure=False,
+        samesite='Lax'
+    )
+    print("Session cookie deleted in response")
+    return response
 
 
 @app.route("/predict", methods=["POST"])
+@login_required
 def predict():
     if "user_id" not in session:
         return jsonify({"success": False, "message": "Unauthorized. Please login."}), 401
@@ -314,6 +394,7 @@ def predict():
     })
 
 @app.route("/download_report", methods=["POST"])
+@login_required
 def download_report():
     if "user_id" not in session:
         return redirect(url_for("login"))
@@ -440,6 +521,7 @@ Disclaimer: Not a replacement for professional medical advice.
         )
 
 @app.route("/admin_panel")
+@admin_required
 def admin_panel():
     # Always return JSON for API requests
     if "user_id" not in session:
@@ -486,6 +568,7 @@ def admin_panel():
     })
 
 @app.route("/admin/user/<int:user_id>")
+@admin_required
 def admin_user_history(user_id):
     """Get diagnostics for a specific user (admin only)"""
     if "user_id" not in session:
@@ -519,6 +602,7 @@ def admin_user_history(user_id):
     })
 
 @app.route("/history")
+@login_required
 def history():
     if "user_id" not in session:
         # Check if this is a JSON/API request
@@ -539,6 +623,7 @@ def history():
 
 # Download previous report by id
 @app.route("/download_report/<int:diag_id>")
+@login_required
 def download_report_by_id(diag_id):
     if "user_id" not in session:
         return redirect(url_for("login"))

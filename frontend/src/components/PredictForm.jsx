@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Activity, Search, AlertCircle } from 'lucide-react';
 import { predict } from '../lib/api';
 import { useNavigate } from 'react-router-dom';
 
@@ -27,64 +29,110 @@ export default function PredictForm() {
   };
 
   return (
-    <div className="flex justify-center">
-      <div className="bg-white rounded-[24px] p-12 max-w-[600px] w-full shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] transition-transform duration-300 hover:-translate-y-1" style={{
-        backdropFilter: 'blur(15px)',
-        WebkitBackdropFilter: 'blur(15px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)'
-      }}>
-        <h1 className="text-4xl font-bold text-center mb-2" style={{ color: '#2d3436', letterSpacing: '-0.5px' }}>
-          INTELLIGENT DISEASE
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="flex justify-center"
+    >
+      <div className="bg-white/95 backdrop-blur-xl rounded-[30px] p-12 max-w-[600px] w-full shadow-2xl relative overflow-hidden border border-white/20">
+        {/* Decorative gradient */}
+        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500"></div>
+        
+        {/* Icon */}
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+          className="flex justify-center mb-6"
+        >
+          <div className="p-4 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl shadow-xl">
+            <Activity className="w-12 h-12 text-white" />
+          </div>
+        </motion.div>
+
+        {/* Header */}
+        <h1 className="text-4xl font-bold text-center mb-2 bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
+          Intelligent Disease
         </h1>
-        <h2 className="text-3xl font-bold text-center mb-4" style={{ color: '#2d3436' }}>
-          PREDICTION SYSTEM
+        <h2 className="text-3xl font-bold text-center mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          Prediction System
         </h2>
-        <p className="text-center text-[#636e72] text-sm mb-8 font-medium">
-          Enter your symptoms below. Our intelligent system will analyze the patterns to provide a preliminary assessment.
+        
+        <p className="text-center text-gray-600 text-sm mb-8 font-medium max-w-md mx-auto">
+          Enter your symptoms below. Our AI-powered system will analyze the patterns to provide a preliminary assessment.
         </p>
 
+        {/* Form */}
         <form onSubmit={handleSubmit}>
           <div className="mb-6 text-left">
-            <label className="block mb-2 font-semibold" style={{ color: '#2d3436' }}>
-              Describe how you feel
+            <label className="block mb-3 font-semibold text-gray-800 flex items-center gap-2">
+              <Search className="w-5 h-5 text-blue-600" />
+              Describe Your Symptoms
             </label>
             <input
               type="text"
               value={symptoms}
               onChange={(e) => setSymptoms(e.target.value)}
-              placeholder="e.g. high fever, joint pain, skin rash"
+              placeholder="e.g. high fever, joint pain, skin rash, fatigue..."
               required
-              className="w-full px-5 py-3 rounded-xl text-base outline-none transition-all"
-              style={{
-                background: 'rgba(255, 255, 255, 0.9)',
-                border: '2px solid lightgray',
-                color: '#2d3436'
-              }}
+              className="w-full px-5 py-4 rounded-xl text-base outline-none transition-all border-2 border-gray-200 focus:border-blue-500 focus:bg-white bg-gray-50"
             />
           </div>
 
           {error && (
-            <div className="mb-4 text-red-600 text-center text-sm">{error}</div>
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3"
+            >
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+              <span className="text-red-600 text-sm">{error}</span>
+            </motion.div>
           )}
 
-          <button
+          <motion.button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl font-semibold text-white transition-all duration-300 hover:scale-[1.02]"
+            whileHover={{ scale: loading ? 1 : 1.02 }}
+            whileTap={{ scale: loading ? 1 : 0.98 }}
+            className="w-full py-4 rounded-xl font-bold text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             style={{
-              background: 'linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%)',
-              border: 'none',
-              boxShadow: loading ? 'none' : '0 0 20px rgba(0, 210, 255, 0.5)'
+              background: loading
+                ? 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)'
+                : 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
+              boxShadow: loading ? 'none' : '0 10px 40px rgba(6, 182, 212, 0.4)'
             }}
           >
-            {loading ? 'Analyzing...' : 'Analyze Symptoms'}
-          </button>
+            {loading ? (
+              <>
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                />
+                Analyzing Symptoms...
+              </>
+            ) : (
+              <>
+                <Activity className="w-5 h-5" />
+                Analyze Symptoms
+              </>
+            )}
+          </motion.button>
         </form>
 
-        <div className="mt-6 text-center text-xs opacity-70" style={{ color: '#2d3436' }}>
-          * This is for informational purposes and not a medical diagnosis.
-        </div>
+        {/* Disclaimer */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="mt-8 text-center text-xs text-gray-500 flex items-center justify-center gap-2"
+        >
+          <AlertCircle className="w-4 h-4" />
+          For informational purposes only. Not a medical diagnosis.
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

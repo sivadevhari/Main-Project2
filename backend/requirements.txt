@@ -1,7 +1,7 @@
-flask
-numpy
-pandas
-scikit-learn
-fpdf2
-flask-cors
-jsonify
+flask==3.0.0
+numpy==1.26.2
+pandas==2.1.3
+scikit-learn==1.3.2
+fpdf2==2.7.6
+flask-cors==4.0.0
+Werkzeug==3.0.1

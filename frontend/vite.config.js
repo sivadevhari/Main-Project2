@@ -26,7 +26,7 @@ export default defineConfig({
             }
           });
           proxy.on('proxyRes', (proxyRes, req, res) => {
-            // Forward set-cookie headers
+            // Forward set-cookie headers - ensure cookie is passed through
             const cookies = proxyRes.headers['set-cookie'];
             if (cookies) {
               res.setHeader('set-cookie', cookies);

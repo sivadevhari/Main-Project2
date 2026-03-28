@@ -10,6 +10,7 @@ import History from './pages/History';
 import AdminPanel from './pages/AdminPanel';
 import AdminUserHistory from './pages/AdminUserHistory';
 import Logout from './pages/Logout';
+import NotFound from './pages/NotFound';
 
 
 function ProtectedRoute({ children }) {
@@ -45,6 +46,7 @@ export default function App() {
           <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
           <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
           <Route path="/admin/user/:userId" element={<AdminRoute><AdminUserHistory /></AdminRoute>} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </AuthProvider>

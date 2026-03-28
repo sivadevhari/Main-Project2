@@ -8,30 +8,25 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const checkSession = useCallback(async () => {
+    console.log('=== checkSession called ===');
     try {
       const res = await getSession();
+      console.log('checkSession result:', res);
       if (res.logged_in && res.user) {
         setUser(res.user);
-        localStorage.setItem('user', JSON.stringify(res.user));
+        sessionStorage.setItem('user', JSON.stringify(res.user));
+        console.log('✓ Session valid, user set:', res.user);
         return true;
       } else {
         setUser(null);
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('user');
+        console.log('✗ No valid session');
         return false;
       }
     } catch (err) {
       console.error('Session check failed:', err);
-      // Fallback to localStorage
-      const stored = localStorage.getItem('user');
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          setUser(parsed);
-          return true;
-        } catch (e) {
-          localStorage.removeItem('user');
-        }
-      }
+      setUser(null);
+      sessionStorage.removeItem('user');
       return false;
     }
   }, []);
@@ -41,18 +36,49 @@ export function AuthProvider({ children }) {
   }, [checkSession]);
 
   const login = async (userData) => {
-    // After login, verify session was created
-    await checkSession();
+    console.log('=== auth.login called ===');
+    console.log('User data to store:', userData);
+    
+    // Test if sessionStorage is available
+    try {
+      sessionStorage.setItem('test_key', 'test_value');
+      console.log('✓ sessionStorage test succeeded');
+      console.log('✓ sessionStorage test read:', sessionStorage.getItem('test_key'));
+      sessionStorage.removeItem('test_key');
+    } catch (e) {
+      console.error('sessionStorage not available:', e);
+    }
+    
+    // Set user in state
+    setUser(userData);
+    // Store in sessionStorage
+    const userDataString = JSON.stringify(userData);
+    console.log('Setting sessionStorage.user to:', userDataString);
+    sessionStorage.setItem('user', userDataString);
+    console.log('✓ User stored in sessionStorage and state');
+    console.log('Current sessionStorage.user:', sessionStorage.getItem('user'));
   };
 
   const logout = async () => {
+    console.log('=== auth.logout called ===');
+    console.log('Current user before logout:', user);
+    console.log('Current sessionStorage.user:', sessionStorage.getItem('user'));
     try {
       await apiLogout();
     } catch (e) {
-      // Ignore logout errors
+      console.error('Logout API error:', e);
     }
+    // Clear user state immediately
     setUser(null);
-    localStorage.removeItem('user');
+    // Clear ALL sessionStorage
+    sessionStorage.clear();
+    // Clear all cookies for current domain
+    document.cookie.split(";").forEach(function(c) {
+      document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+    console.log('✓ All storage cleared');
+    console.log('User after logout:', user);
+    console.log('sessionStorage.user after logout:', sessionStorage.getItem('user'));
   };
 
   if (loading) {

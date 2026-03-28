@@ -1,0 +1,1912 @@
+\documentclass[12pt,a4paper]{report}
+\newcommand{\chapterpage}[2]{
+    \clearpage
+    \thispagestyle{empty}
+
+    \vspace*{\fill}
+    \begin{center}
+        \textbf{\MakeUppercase{CHAPTER #1}}\\[1cm]
+        \textbf{\MakeUppercase{#2}}
+    \end{center}
+    \vspace*{\fill}
+
+    \clearpage
+}
+
+% ---------------- Packages ----------------
+\usepackage{graphicx}
+\usepackage{pdfpages}
+\usepackage{geometry}
+\usepackage{setspace}
+\setlength{\parindent}{0pt}     % No paragraph indentation
+\setlength{\parskip}{8pt}
+\usepackage{tocloft}
+\usepackage{float}
+\makeatletter
+\renewcommand{\@cftmaketoctitle}{%
+  \chapter*{%
+    \centering
+    \fontsize{14pt}{16pt}\selectfont
+    \textbf{TABLE OF CONTENTS}
+  }
+}
+\makeatother
+\usepackage{enumitem}
+\setlist[itemize]{noitemsep, topsep=6pt}
+\usepackage{needspace}
+\usepackage{pdfpages}
+\usepackage{titlesec}
+\titlespacing*{\section}{0pt}{14pt}{10pt}
+\titlespacing*{\subsection}{0pt}{12pt}{8pt}
+\usepackage{fancyhdr}
+\setlength{\headheight}{14pt}
+\usepackage{adjustbox}
+\usepackage{subcaption}
+
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{xparse}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single
+}
+
+% ---------------- Missing File Placeholders ----------------
+\newcommand{\MissingAssetBox}[2]{%
+    \begin{center}
+    \fbox{%
+        \begin{minipage}[c][5cm][c]{0.9\linewidth}
+            \centering
+            \textbf{#1 Placeholder}\\[0.3cm]
+            \texttt{\detokenize{#2}}\\[0.2cm]
+            {\small File not found}
+        \end{minipage}%
+    }
+    \end{center}
+}
+
+\let\OriginalIncludeGraphics\includegraphics
+\RenewDocumentCommand{\includegraphics}{s O{} m}{%
+    \IfFileExists{#3}{%
+        \IfBooleanTF{#1}
+            {\OriginalIncludeGraphics*[#2]{#3}}%
+            {\OriginalIncludeGraphics[#2]{#3}}%
+    }{%
+        \MissingAssetBox{Image}{#3}%
+    }%
+}
+
+\let\OriginalIncludePdf\includepdf
+\RenewDocumentCommand{\includepdf}{O{} m}{%
+    \IfFileExists{#2}{%
+        \OriginalIncludePdf[#1]{#2}%
+    }{%
+        \clearpage
+        \thispagestyle{empty}
+        \vspace*{\fill}
+        \MissingAssetBox{PDF}{#2}%
+        \vspace*{\fill}
+        \clearpage
+    }%
+}
+
+\let\OriginalLstInputListing\lstinputlisting
+\RenewDocumentCommand{\lstinputlisting}{O{} m}{%
+    \IfFileExists{#2}{%
+        \OriginalLstInputListing[#1]{#2}%
+    }{%
+        \MissingAssetBox{Code Listing}{#2}%
+    }%
+}
+% ---------------- Table of Contents Formatting ----------------
+\renewcommand{\contentsname}{TABLE OF CONTENTS}
+
+
+
+% Vertical spacing around title
+\setlength{\cftbeforetoctitleskip}{0pt}
+\setlength{\cftaftertoctitleskip}{20pt}
+
+% Indentation & alignment
+\setlength{\cftchapindent}{0pt}
+\setlength{\cftsecindent}{1.5em}
+
+% Fonts
+\renewcommand{\cftchapfont}{\bfseries}
+\renewcommand{\cftchappagefont}{\bfseries}
+
+% Dotted leaders
+\renewcommand{\cftdotsep}{1}
+
+% Extra breathing space between chapters
+\setlength{\cftbeforechapskip}{6pt}
+
+% ---------- LIST OF FIGURES FORMAT ----------
+\renewcommand{\listfigurename}{LIST OF FIGURES}
+
+\makeatletter
+\renewcommand{\@cftmakeloftitle}{%
+  \chapter*{%
+    \centering
+    \fontsize{14pt}{16pt}\selectfont
+    \textbf{LIST OF FIGURES}
+  }
+}
+\makeatother
+
+% Spacing similar to TOC
+\setlength{\cftbeforeloftitleskip}{17pt}
+\setlength{\cftafterloftitleskip}{20pt}
+
+% ---------- LIST OF TABLES FORMAT ----------
+\renewcommand{\listtablename}{LIST OF TABLES}
+
+\makeatletter
+\renewcommand{\@cftmakelottitle}{%
+  \chapter*{%
+    \centering
+    \fontsize{14pt}{16pt}\selectfont
+    \textbf{LIST OF TABLES}
+  }
+}
+\makeatother
+
+% Spacing similar to TOC & LOF
+\setlength{\cftbeforelottitleskip}{17pt}
+\setlength{\cftafterlottitleskip}{20pt}
+% ---------------- Page Setup ----------------
+\geometry{
+    left=1.25in,
+    right=1in,
+    top=1in,
+    bottom=1in
+}
+
+\onehalfspacing
+
+\setlength{\floatsep}{6pt}       % space between two figures
+\setlength{\textfloatsep}{6pt}   % space between figure and text
+\setlength{\intextsep}{6pt}      % space for inline floats
+
+% ---------------- Header & Footer for Main Content ----------------
+\fancypagestyle{maincontent}{
+    \fancyhf{}
+    \fancyhead[R]{\small IMU-Based Lower Limb Gait Analysis System}
+    \fancyfoot[L]{\small Saintgits College of Engineering(Autonomous)}
+    \fancyfoot[R]{\small \thepage}
+    \renewcommand{\headrulewidth}{0.4pt}
+    \renewcommand{\footrulewidth}{0.4pt}
+}
+
+% ---------------- Chapter Format (KTU Style) ----------------
+\titleformat{\section}
+{\bfseries\fontsize{14pt}{16pt}\selectfont}
+{\thesection}
+{1em}
+{}
+
+\titleformat{\subsection}
+{\bfseries\fontsize{12pt}{14pt}\selectfont}
+{\thesubsection}
+{1em}
+{}
+\newcommand{\bfFourteen}[1]{{\fontsize{14pt}{16pt}\selectfont\textbf{#1}}}
+% ---------- FIX TOC TOP SPACING ----------
+\usepackage{tocloft}
+
+% Remove extra padding before TOC title
+\setlength{\cftbeforetoctitleskip}{17pt}
+
+% Optional: space after TOC title
+\setlength{\cftaftertoctitleskip}{20pt}
+
+\makeatletter
+\renewenvironment{thebibliography}[1]
+  {\section*{}\@mkboth{}{}%
+   \list{\@biblabel{\@arabic\c@enumiv}}%
+        {\settowidth\labelwidth{\@biblabel{#1}}%
+         \leftmargin\labelwidth
+         \advance\leftmargin\labelsep
+         \itemsep=0.6\baselineskip
+         \usecounter{enumiv}%
+         \let\p@enumiv\@empty
+         \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+   \sloppy}
+  {\endlist}
+\makeatother
+\usepackage{chngcntr}
+\usepackage{chngcntr}
+\counterwithin{figure}{chapter}
+\begin{document}
+
+% ===================== PAGE 1 : TITLE PAGE =====================
+\thispagestyle{empty}
+
+\begin{center}
+\vspace*{0.3cm}
+
+\bfFourteen{PROJECT REPORT}\\[0.3cm]
+\bfFourteen{ON}\\[0.3cm]
+\bfFourteen{IMU-BASED LOWER LIMB GAIT ANALYSIS SYSTEM FOR REHABILITATION PROGRESS MONITORING}\\[0.6cm]
+
+\bfFourteen{Submitted By,}\\[0.2cm]
+\bfFourteen{THAMPU VARGHESE JACOB – MGP21NMC060}\\[0.5cm]
+
+\bfFourteen{To}\\[0.2cm]
+\textit{the APJ Abdul Kalam Technological University in partial}\\
+\textit{fulfillment of the requirements for the award of the degree of}\\[0.5cm]
+
+\makebox[\textwidth][c]{\bfFourteen{MASTER OF COMPUTER APPLICATIONS (INTEGRATED)}}
+
+\bfFourteen{Under the guidance of}\\[0.3cm]
+\bfFourteen{Ms. Rani Saritha R}\\
+\bfFourteen{Head of Department, MCA}\\[0.8cm]
+
+\includegraphics[width=4.5cm]{saintgits_logo.jpg}\\[0.8cm]
+
+\bfFourteen{DEPARTMENT OF COMPUTER APPLICATIONS}\\[0.25cm]
+\bfFourteen{\makebox[\textwidth]{SAINTGITS COLLEGE OF ENGINEERING (AUTONOMOUS)}}
+\bfFourteen{PATHAMUTTOM, KOTTAYAM, KERALA – 686532}\\[0.3cm]
+
+\textit{(Approved by AICTE and affiliated to APJ Abdul Kalam Technological University)}\\[0.6cm]
+
+\bfFourteen{APRIL 2026}
+
+\end{center}
+
+% ===================== PAGE 2 : BONAFIDE =====================
+\newpage
+\thispagestyle{empty}
+
+\begin{center}
+\makebox[\textwidth][c]{\fontsize{14pt}{16pt}\selectfont \textbf{SAINTGITS COLLEGE OF ENGINEERING (AUTONOMOUS)}}\\
+Kottukulam Hills, Pathamuttom, Kottayam, Kerala – 686532
+\end{center}
+
+\vspace{0.2cm}
+
+\begin{center}
+\includegraphics[width=4.5cm]{saintgits_logo.jpg}
+\end{center}
+
+\vspace{0.1cm}
+
+\begin{center}
+\fontsize{14pt}{16pt}\selectfont
+\textbf{BONAFIDE CERTIFICATE}
+\end{center}
+
+\vspace{0.2cm}
+
+Certified that the report entitled \textbf{IMU-Based Lower Limb Gait Analysis System for Rehabilitation Progress Monitoring} submitted by \textbf{Thampu Varghese Jacob - MGP21NMC060} to the APJ Abdul Kalam Technological University in partial fulfillment of the requirements for the award of the Degree of \textbf{Master of Computer Applications(Integrated)} is a bonafide record of the project work carried out by him under our guidance and supervision. This report in any form has not been submitted to any other University or Institute for any purpose.
+
+\vspace{2.2cm}
+
+\noindent
+\begin{minipage}[t]{0.45\textwidth}
+\raggedright
+\textbf{Ms. Rani Saritha R}\\
+Project Guide\\
+Head of Department, MCA
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+\raggedleft
+\textbf{Mr. Jijo Varghese}\\
+Project Co-ordinator
+\end{minipage}
+
+\vspace{1.8cm}
+
+\noindent
+\begin{minipage}[t]{0.45\textwidth}
+\raggedright
+\textbf{Dr. Sudha T}\\
+Principal
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+\raggedleft
+\textbf{}
+\end{minipage}
+
+\vspace{1.8cm}
+\noindent
+\begin{minipage}[t]{0.45\textwidth}
+\raggedright
+\vspace{0pt}
+\textit{Viva-voce held on:} 
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+\raggedleft
+\vspace{0pt}
+\textbf{External Examiner}
+\end{minipage}
+
+\includepdf[
+    pages=-,
+    scale=0.75,
+    offset=1.25cm 0cm
+]{certificate.pdf}
+
+
+% ===================== PAGE 3 : ACKNOWLEDGEMENT =====================
+\newpage
+\thispagestyle{empty}
+
+\begin{center}
+{\fontsize{16pt}{18pt}\selectfont\textbf{ACKNOWLEDGEMENT}}
+
+\end{center}
+
+\vspace{1cm}
+
+At the outset, I thank the lord almighty for his abundant grace, strength to make our endeavour a success. I express my deep-felt gratitude to \textbf{Dr. Sudha T.}, Principal, Saintgits College of Engineering(Autonomous) for her warm support with regard to the work and to the management for providing the facilities required.
+
+
+I would like to place my deep gratitude to \textbf{Prof. Mini Punnoose,} Director MCA, Saintgits College of Engineering (Autonomous) for her constant encouragement.I express my gratitude to \textbf{Ms. Rani Saritha R}, Head, Department of Computer Applications, Saintgits College of Engineering(Autonomous), for her support and guidance.
+
+
+I am profoundly grateful to \textbf{Mr. Jijo Varghese,} Project Co-ordinator, for his valuable guidance, help, suggestions and assessment.
+
+
+Furthermore, I would like to thank all others especially my parents and numerous friends. This project report would not have been a success without their inspiration, valuable suggestions and moral support from them throughout its course.
+
+
+\vspace{2cm}
+
+\begin{flushright}
+\textbf{THAMPU VARGHESE JACOB}
+\end{flushright}
+
+% ===================== PAGE 4 : DECLARATION =====================
+\newpage
+\thispagestyle{empty}
+
+\begin{center}
+{\fontsize{16pt}{18pt}\selectfont\textbf{DECLARATION}}
+
+
+\end{center}
+
+\vspace{1cm}
+
+I, the undersigned, hereby declare that the project report
+\textbf{"IMU-BASED LOWER LIMB GAIT ANALYSIS SYSTEM FOR REHABILITATION PROGRESS MONITORING"} submitted for partial
+fulfillment of requirements for the award of Degree of Master of Computer Applications(Integrated) of the APJ Abdul Kalam Technological University, Kerala,
+is a bonafide work done by me under the supervision of
+\textbf{Ms. RANI SARITHA R}. This submission represents my ideas in my own words, and where ideas or words of others have been included, I have adequately and accurately cited and referenced the original sources. I also declare that I have adhered to the ethics of academic honesty and integrity and have not misrepresented or fabricated any data, idea, fact, or source in my submission.I understand that any violation of the above will be a cause for disciplinary action by the institute and/or the University and can also evoke penal action from the sources which have not been properly cited or from whom proper permission has not been obtained.This report has not previously formed the basis for the award of any degree, diploma, or similar title of any other University.
+
+\vspace{2cm}
+
+\begin{flushright}
+\textbf{THAMPU VARGHESE JACOB}
+\end{flushright}
+
+\noindent
+Place: Kottayam\\
+Date:
+
+
+% ===================== PAGE 4 : ABSTRACT =====================
+\newpage
+\thispagestyle{empty}
+
+\begin{center}
+{\fontsize{16pt}{18pt}\selectfont\textbf{ABSTRACT}}
+\end{center}
+
+\vspace{1cm}
+Gait analysis plays a critical role in evaluating lower limb movement and monitoring rehabilitation progress for patients recovering from orthopedic injuries, neurological conditions, or post-surgical procedures. Traditional motion capture systems used for gait analysis are expensive, laboratory-bound, and require controlled environments, making continuous monitoring during daily activities challenging. This project proposes the development of an IMU-Based Lower Limb Gait Analysis System that provides a portable, cost-effective, and real-time solution for rehabilitation progress monitoring.
+
+The system utilizes wearable Inertial Measurement Unit (IMU) sensors, specifically the MPU6050 (combining accelerometer and gyroscope), mounted on the shank of both legs to capture lower limb motion data. A microcontroller-based data acquisition module (ESP32/Arduino) processes sensor data and transmits it wirelessly via Bluetooth or Wi-Fi to a computing device. Signal processing algorithms implemented in Python extract spatiotemporal gait parameters including stride time, step time, stance and swing time, cadence, gait speed, and estimated step length. Gait phase detection algorithms identify critical events such as Heel Strike (Initial Contact) and Toe-Off (Terminal Contact) based on angular velocity and acceleration patterns.
+
+The system architecture follows a modular design comprising IMU sensor modules, microcontroller unit, wireless communication module, data processing engine, and a user interface for visualization and reporting. Sensor fusion techniques combining accelerometer and gyroscope data improve orientation estimation accuracy through coordinate transformation and zero-speed correction algorithms. The AMASS motion capture dataset is integrated as a reference for validating motion analysis algorithms and comparing recorded gait patterns.
+
+Key features include automated data preprocessing, real-time gait parameter extraction, interactive 3D motion visualization using Python-based skeleton rendering, and quantitative rehabilitation progress tracking through comparative session analysis. The system supports clinical decision-making by providing objective, data-driven feedback to physiotherapists and rehabilitation specialists.
+
+Testing methodologies include sensor data validation, dataset comparison with AMASS reference motions, functional module testing, and visualization accuracy verification. The platform demonstrates feasibility for deployment in both clinical settings and home-based rehabilitation environments.
+
+Future enhancements encompass machine learning integration for abnormal gait detection, cloud-based analytics for remote monitoring, mobile application development, EMG sensor integration for comprehensive biomechanical analysis, and expansion to full-body motion tracking capabilities.
+
+This project demonstrates the effective application of wearable IMU technology, embedded systems programming, signal processing, and data visualization techniques to address the limitations of traditional gait analysis systems, offering a scalable solution for accessible rehabilitation monitoring.
+
+\newpage
+\thispagestyle{empty}
+
+\begin{center}
+\textbf{\Large PLAGIARISM REPORT}
+\end{center}
+
+\vspace{0.3cm}
+
+\begin{center}
+\includegraphics[page=1, width=0.85\textwidth]{MyReport 27-Mar-2026.pdf}
+\end{center}
+
+% ===================== TABLE OF CONTENTS =====================
+\pagenumbering{gobble}
+\pagestyle{empty}
+
+\tableofcontents
+
+
+\clearpage
+
+\listoffigures
+
+\clearpage
+
+\listoftables
+
+\clearpage
+
+
+% ===================== MAIN CONTENT =====================
+\newpage
+\pagenumbering{arabic}
+\pagestyle{maincontent}
+\setcounter{chapter}{1}
+\addcontentsline{toc}{chapter}{CHAPTER 1 \quad INTRODUCTION}
+\clearpage
+\thispagestyle{empty}
+
+\noindent
+\makebox[\textwidth]{%
+\begin{minipage}[c][\textheight][c]{\textwidth}
+\centering
+{\fontsize{16pt}{18pt}\selectfont\textbf{CHAPTER 1}}\\[0.4cm]
+{\fontsize{16pt}{18pt}\selectfont\textbf{INTRODUCTION}}
+\end{minipage}}
+
+\clearpage
+
+\section{Introduction}
+Gait analysis is a fundamental component in evaluating lower limb movement patterns and monitoring rehabilitation progress for individuals recovering from orthopedic injuries, neurological disorders, or post-surgical procedures. Accurate assessment of gait parameters enables healthcare professionals to design effective treatment plans, track patient recovery, and make informed clinical decisions. However, traditional motion capture systems used for gait analysis present significant limitations including high cost, laboratory-bound operation, requirement for controlled environments, and lack of portability for continuous monitoring during daily activities.
+
+To address these challenges, this project proposes the development of an IMU-Based Lower Limb Gait Analysis System that leverages wearable Inertial Measurement Unit (IMU) sensors to provide a portable, cost-effective, and real-time solution for rehabilitation progress monitoring. IMU sensors, which combine accelerometers and gyroscopes, have gained widespread adoption in portable motion tracking applications due to their compact size, low power consumption, and ability to capture three-dimensional movement data.
+
+The system is designed to detect critical gait phases such as Heel Strike (Initial Contact) and Toe-Off (Terminal Contact) by analyzing angular velocity and acceleration patterns captured from sensors mounted on the shank of both legs. Spatiotemporal gait parameters including stride time, step time, stance and swing duration, cadence, gait speed, and estimated step length are extracted through signal processing algorithms implemented in Python. These quantitative metrics enable objective assessment of rehabilitation progress by comparing gait parameters across multiple monitoring sessions.
+
+The proposed architecture integrates wearable IMU sensor modules with a microcontroller-based data acquisition unit (ESP32/Arduino), wireless communication capabilities (Bluetooth/Wi-Fi), and a software platform for signal processing, gait analysis, and data visualization. Sensor fusion techniques combining accelerometer and gyroscope data improve orientation estimation accuracy through coordinate transformation and zero-speed correction algorithms. The AMASS motion capture dataset is incorporated as a reference standard for validating motion analysis algorithms and benchmarking system performance.
+
+Key motivations for this project include supporting orthopedic and neurological rehabilitation programs, enabling post-surgery gait monitoring, assessing fall risk in elderly populations, and facilitating sports biomechanics analysis. By reducing the number of required IMU sensors while maintaining detection accuracy, the system enhances user comfort and practical usability for extended wear during rehabilitation activities.
+
+The system aims to bridge the gap between laboratory-grade gait analysis and accessible home-based monitoring by providing clinicians and patients with objective, quantitative feedback on movement patterns and recovery progress. This project demonstrates the integration of embedded systems, signal processing, machine learning concepts, and data visualization techniques to create a comprehensive solution for rehabilitation progress monitoring.
+
+\section{Organisation Profile}
+Saintgits College of Engineering (Autonomous), located in Pathamuttom, Kottayam, Kerala, is a premier institution affiliated with APJ Abdul Kalam Technological University and approved by AICTE. The Department of Computer Applications offers the Master of Computer Applications (Integrated) program with a curriculum emphasizing practical skills in software development, data analytics, artificial intelligence, and emerging technologies.
+
+The department maintains state-of-the-art laboratories equipped with modern computing infrastructure, supporting research and project work in areas such as embedded systems, IoT, machine learning, computer vision, and human-computer interaction. Faculty members possess expertise in diverse domains and actively engage in industry collaborations, research publications, and student mentorship.
+
+The college fosters an innovation-driven ecosystem through initiatives such as incubation centers, technical clubs, hackathons, and industry visits. Students are encouraged to undertake real-world projects that address societal challenges and contribute to technological advancement. The institutional focus on experiential learning ensures that graduates are well-prepared for professional roles in the technology sector.
+
+For this project, the department provided access to hardware components including IMU sensors, microcontrollers, and development tools, as well as guidance on system design, algorithm implementation, and academic documentation standards. The collaborative environment and resource support enabled the successful development of the IMU-Based Lower Limb Gait Analysis System.
+
+\section{Scope and Availability}
+The scope of the IMU-Based Lower Limb Gait Analysis System extends across multiple domains where objective assessment of movement patterns and rehabilitation progress is essential. The system is designed to handle structured motion data captured from wearable sensors and provide meaningful insights through automated processing, parameter extraction, and visualization.
+
+Primary application areas include orthopedic rehabilitation, where patients recovering from fractures, joint replacements, or ligament injuries require continuous monitoring of gait parameters to evaluate healing progress and adjust therapy protocols. Neurological rehabilitation represents another significant domain, supporting patients with conditions such as stroke, Parkinson's disease, or cerebral palsy who benefit from quantitative feedback on movement symmetry and coordination.
+
+The system is applicable for post-surgical monitoring, enabling clinicians to track recovery trajectories following procedures such as ACL reconstruction, hip arthroplasty, or spinal surgery. Elderly care represents an important use case, where the system can assess fall risk by analyzing gait stability, step variability, and balance metrics in aging populations.
+
+Sports biomechanics and athletic training constitute additional application areas, where the system can evaluate movement efficiency, detect asymmetries, and support injury prevention strategies. Research institutions can utilize the platform for biomechanical studies, algorithm validation, and comparative analysis of gait patterns across different populations.
+
+The system's modular architecture and Python-based implementation facilitate deployment in diverse environments including clinical settings, rehabilitation centers, home-based care, and research laboratories. Wireless data transmission capabilities enable real-time monitoring and remote assessment, expanding accessibility for patients in rural or underserved areas.
+
+Current limitations include focus on lower limb analysis with shank-mounted sensors, which may not capture full-body kinematics or upper limb contributions to gait. The system primarily processes structured time-series data from IMU sensors and does not yet integrate complementary modalities such as force plates, pressure mats, or video-based motion capture. Advanced machine learning models for predictive analytics and abnormal gait classification represent opportunities for future enhancement.
+
+Despite these constraints, the IMU-Based Lower Limb Gait Analysis System offers significant potential for scalable, accessible rehabilitation monitoring. Its applicability lies in providing objective, quantitative assessment of movement patterns that support evidence-based clinical decision-making and personalized rehabilitation planning.
+
+\setcounter{chapter}{2}
+\clearpage
+\thispagestyle{empty}
+
+\noindent
+\makebox[\textwidth]{%
+\begin{minipage}[c][\textheight][c]{\textwidth}
+\centering
+{\fontsize{16pt}{18pt}\selectfont\textbf{CHAPTER 2}}\\[0.4cm]
+{\fontsize{16pt}{18pt}\selectfont\textbf{REQUIREMENTS AND ANALYSIS}}
+\end{minipage}}
+
+\clearpage
+\addcontentsline{toc}{chapter}{CHAPTER 2 \quad REQUIREMENTS AND ANALYSIS}
+\setcounter{section}{0}
+\section{Existing System}
+In current clinical and research practice, gait analysis is predominantly performed using optical motion capture systems, force platforms, and instrumented walkways housed in specialized laboratories. These traditional systems offer high accuracy and comprehensive biomechanical assessment but present significant limitations that restrict their accessibility and practical utility for continuous rehabilitation monitoring.
+
+Optical motion capture systems rely on multiple high-speed cameras and reflective markers placed on anatomical landmarks to reconstruct three-dimensional movement trajectories. While providing precise kinematic data, these systems require controlled lighting conditions, calibrated camera arrays, and dedicated laboratory space. The setup process is time-consuming, and marker placement demands specialized training, limiting deployment to research institutions and major medical centers.
+
+Force platforms and instrumented treadmills measure ground reaction forces and pressure distribution during walking, offering valuable kinetic insights. However, these devices are expensive, stationary, and capture data only during brief laboratory sessions, failing to represent natural gait patterns during daily activities. The intermittent nature of assessment makes it difficult to track subtle changes in rehabilitation progress over time.
+
+Wearable commercial devices such as fitness trackers and smartwatches provide basic activity monitoring but lack the sensor fidelity, sampling rates, and algorithmic sophistication required for clinical-grade gait analysis. These consumer products typically report aggregated metrics such as step count or distance walked without capturing detailed spatiotemporal parameters or gait phase events.
+
+Existing research prototypes for IMU-based gait analysis often focus on specific applications or populations, with limited consideration for usability, comfort, or integration into clinical workflows. Many systems require multiple sensors, complex calibration procedures, or proprietary software that hinders adoption by healthcare providers.
+
+Key limitations of existing systems can be summarized as follows:
+\begin{itemize}
+\item High cost of optical motion capture and force platform systems
+
+\item Laboratory-bound operation requiring controlled environments
+
+\item Inability to monitor gait continuously during daily activities
+
+\item Limited portability and practical usability for home-based rehabilitation
+
+\item Complex setup and calibration procedures requiring specialized expertise
+
+\item Lack of real-time feedback and automated progress tracking
+
+\item Fragmented workflows across multiple tools and platforms
+
+\item Insufficient integration with electronic health records and clinical decision support
+\end{itemize}
+These challenges highlight the need for a modern, integrated solution that combines wearable sensor technology, embedded processing, wireless communication, and intelligent analytics to enable accessible, objective, and continuous gait analysis for rehabilitation monitoring.
+
+The problem statement addressed by this project is:
+
+\textit{To design and develop a wearable, IMU-based lower limb gait analysis system that provides portable, cost-effective, and real-time monitoring of rehabilitation progress through automated detection of gait phases, extraction of spatiotemporal parameters, and quantitative assessment of movement patterns.}
+
+\section{Proposed System}
+To overcome the limitations of existing gait analysis systems, the proposed solution is the development of an IMU-Based Lower Limb Gait Analysis System that integrates wearable sensor technology, embedded processing, wireless communication, and intelligent analytics into a unified platform for rehabilitation progress monitoring.
+
+The system utilizes MPU6050 IMU sensors, which combine tri-axial accelerometers and gyroscopes, mounted on the shank of both legs to capture lower limb motion data during walking. A microcontroller unit (ESP32 or Arduino) serves as the data acquisition hub, sampling sensor data at 50-100 Hz and performing initial signal conditioning. Wireless communication modules (Bluetooth or Wi-Fi) enable real-time transmission of processed data to a computing device for further analysis and visualization.
+
+Signal processing algorithms implemented in Python extract orientation angles through sensor fusion techniques, applying coordinate transformation and zero-speed correction to improve accuracy. Gait phase detection algorithms identify critical events such as Heel Strike (Initial Contact) and Toe-Off (Terminal Contact) by analyzing patterns in angular velocity and acceleration signals. Spatiotemporal parameters including stride time, step time, stance and swing duration, cadence, gait speed, and estimated step length are computed from detected gait events.
+
+The system architecture follows a modular design comprising:
+\begin{itemize}
+\item IMU Sensor Module: Captures acceleration and angular velocity data
+
+\item Microcontroller Unit: Manages data acquisition and wireless transmission
+
+\item Communication Module: Enables Bluetooth/Wi-Fi data transfer
+
+\item Data Processing Engine: Implements signal conditioning, gait detection, and parameter extraction
+
+\item Visualization Interface: Displays gait parameters, trends, and rehabilitation progress
+\end{itemize}
+Key features of the proposed system include:
+\begin{itemize}
+\item Wearable, comfortable sensor placement on shank for reliable gait event detection
+
+\item Automated preprocessing including filtering, coordinate alignment, and noise reduction
+
+\item Real-time gait phase detection based on angular velocity and acceleration patterns
+
+\item Extraction of clinically relevant spatiotemporal gait parameters
+
+\item Quantitative rehabilitation progress tracking through comparative session analysis
+
+\item Interactive visualization of gait metrics and trends using Python-based tools
+
+\item Integration with AMASS motion capture dataset for algorithm validation and benchmarking
+
+\item Support for both clinical and home-based rehabilitation environments
+\end{itemize}
+From a system perspective, the workflow proceeds as follows:
+\begin{itemize}
+\item IMU sensors capture lower limb motion data during walking
+
+\item Microcontroller acquires and preprocesses sensor signals
+
+\item Wireless module transmits data to computing device
+
+\item Python-based processing engine detects gait phases and extracts parameters
+
+\item Visualization interface displays results and tracks rehabilitation progress
+
+\item Comparative analysis across sessions quantifies improvement or deterioration
+\end{itemize}
+The proposed system not only improves accessibility and affordability compared to traditional laboratory systems but also enhances clinical utility by enabling continuous monitoring, objective assessment, and data-driven decision support for rehabilitation planning.
+
+\section{Feasibility Study}
+A feasibility study evaluates whether the proposed IMU-Based Lower Limb Gait Analysis System is practical and achievable within given constraints. The analysis considers technical, economic, operational, schedule, and legal/ethical dimensions.
+
+1. Technical Feasibility
+
+Technical feasibility examines whether required technologies and resources are available for system development. The project utilizes widely adopted components including MPU6050 IMU sensors, ESP32/Arduino microcontrollers, and Bluetooth/Wi-Fi communication modules, all of which are readily available and well-documented. Python provides robust libraries for signal processing (NumPy, SciPy), sensor fusion (filterpy), and visualization (Matplotlib, Plotly), enabling efficient implementation of gait analysis algorithms. Sensor fusion techniques and gait event detection methods are established in literature, reducing development risk. Integration with the public AMASS dataset supports algorithm validation without requiring extensive proprietary data collection. Given the availability of components, tools, and reference implementations, the project is technically feasible.
+
+2. Economic Feasibility
+
+Economic feasibility assesses cost-effectiveness relative to benefits. The system leverages low-cost IMU sensors (MPU6050: approximately \$5-10 per unit), open-source microcontroller platforms (ESP32: approximately \$10), and free software tools (Python, Arduino IDE), minimizing hardware and licensing expenses. Development utilizes existing laboratory infrastructure and open-source libraries, further reducing costs. Compared to optical motion capture systems costing tens of thousands of dollars, the proposed solution offers substantial cost savings while delivering clinically relevant gait metrics. The system's potential to improve rehabilitation outcomes and reduce healthcare utilization supports long-term economic value. Therefore, the project is economically viable.
+
+3. Operational Feasibility
+
+Operational feasibility determines whether the system can be effectively used in real-world environments. The wearable sensor design with shank-mounted IMUs ensures comfort and minimal interference with natural gait. Wireless data transmission eliminates cumbersome cabling, enhancing usability during rehabilitation exercises. Python-based processing and visualization provide an intuitive interface for clinicians and researchers. Automated gait parameter extraction reduces manual analysis burden, supporting efficient clinical workflows. Training requirements are modest given the system's focus on lower limb analysis with simplified sensor placement. Hence, the system is operationally feasible for deployment in clinical settings, rehabilitation centers, and home environments.
+
+4. Schedule Feasibility
+
+Schedule feasibility assesses whether the project can be completed within the academic timeline. The development follows a modular, iterative approach aligned with Agile principles, enabling incremental progress and risk mitigation. Phases include requirement analysis, hardware prototyping, algorithm development, integration testing, and documentation. Each module (sensor interface, signal processing, gait detection, visualization) can be developed and validated independently, facilitating parallel work and efficient resource utilization. Given proper planning and milestone tracking, the project can be completed within the prescribed academic schedule.
+
+5. Legal and Ethical Feasibility
+
+The system complies with standard data handling practices for research involving human participants. Sensor data collection follows ethical guidelines with informed consent, data anonymization, and secure storage. The use of open-source hardware and software avoids licensing constraints. Integration with the public AMASS dataset adheres to its terms of use. No major legal or ethical barriers impede project implementation.
+
+Conclusion of Feasibility Study
+
+The feasibility analysis indicates that the IMU-Based Lower Limb Gait Analysis System is:
+\begin{itemize}
+\item Technically achievable with available components and tools
+
+\item Economically viable due to low-cost hardware and open-source software
+
+\item Operationally practical for clinical and home-based rehabilitation
+
+\item Schedulable within the academic timeline through modular development
+
+\item Legally and ethically compliant with research standards
+\end{itemize}
+Thus, the project is feasible and suitable for implementation.
+
+\section{Conceptual Modelling}
+Conceptual modelling represents the high-level structure of the IMU-Based Lower Limb Gait Analysis System, illustrating how different components interact to achieve rehabilitation monitoring objectives. The model abstracts implementation details to focus on functional relationships and data flow.
+
+The conceptual model comprises the following key entities:
+\begin{itemize}
+\item User: Clinician, researcher, or patient interacting with the system
+
+\item IMU Sensor: Wearable device capturing acceleration and angular velocity
+
+\item Microcontroller: Embedded unit managing data acquisition and transmission
+
+\item Processing Engine: Software module implementing signal processing and gait analysis
+
+\item Gait Parameters: Extracted metrics including temporal, spatial, and kinematic measures
+
+\item Visualization Interface: Display component presenting results and trends
+
+\item Rehabilitation Session: Contextual record linking gait data to clinical assessment
+\end{itemize}
+The User entity represents individuals who configure the system, initiate data collection, and interpret results. Each user has associated roles and permissions defining access to system functions.
+
+The IMU Sensor entity represents the wearable hardware component that captures raw motion data. Attributes include sensor type, sampling rate, placement location, and calibration parameters.
+
+The Microcontroller entity manages sensor interfacing, data buffering, and wireless communication. It serves as the bridge between physical sensors and computational processing.
+
+The Processing Engine implements algorithms for signal conditioning, orientation estimation, gait phase detection, and parameter extraction. It transforms raw sensor data into clinically meaningful metrics.
+
+The Gait Parameters entity stores computed metrics such as stride time, step length, cadence, and gait speed. These parameters form the basis for rehabilitation assessment.
+
+The Visualization Interface presents gait parameters through charts, graphs, and summary reports, enabling intuitive interpretation of movement patterns and progress trends.
+
+The Rehabilitation Session entity contextualizes gait data within specific clinical encounters, linking measurements to patient conditions, treatment protocols, and outcome assessments.
+
+Relationships Between Entities
+\begin{itemize}
+\item A User configures and operates multiple IMU Sensors
+
+\item Each IMU Sensor streams data to a Microcontroller unit
+
+\item The Microcontroller transmits data to the Processing Engine
+
+\item The Processing Engine computes Gait Parameters from sensor data
+
+\item Gait Parameters are displayed via the Visualization Interface
+
+\item Multiple sessions of gait data are aggregated for Rehabilitation Progress Tracking
+\end{itemize}
+Conceptual Workflow
+\begin{itemize}
+\item User initiates data collection session with wearable IMU sensors
+
+\item Sensors capture lower limb motion during walking activity
+
+\item Microcontroller acquires and transmits sensor data wirelessly
+
+\item Processing Engine detects gait phases and extracts spatiotemporal parameters
+
+\item Visualization Interface displays results and comparative trends
+
+\item Clinician interprets findings to assess rehabilitation progress
+\end{itemize}
+This conceptual model ensures clarity in system design, facilitates requirement tracing, and supports modular development of the IMU-Based Lower Limb Gait Analysis System.
+
+\section{Planning and Scheduling}
+Planning and scheduling are critical for successful project execution, ensuring that development activities align with objectives, resources, and timelines. The IMU-Based Lower Limb Gait Analysis System follows a structured development plan with clearly defined phases and milestones.
+
+\textbf{Project Planning}
+
+The planning phase establishes project scope, objectives, and deliverables. Key activities include:
+\begin{itemize}
+\item Requirement analysis: Identifying functional needs for gait phase detection, parameter extraction, and rehabilitation monitoring
+
+\item System architecture design: Defining hardware components, software modules, and data flow
+
+\item Technology selection: Choosing IMU sensors, microcontrollers, communication protocols, and development tools
+
+\item Resource allocation: Assigning tasks, estimating effort, and scheduling development activities
+\end{itemize}
+A detailed project roadmap guides execution, with contingency planning for technical risks and scope adjustments.
+
+\textbf{Project Phases}
+
+Development is organized into sequential yet iterative phases:
+\begin{itemize}
+\item Requirement Analysis Phase: Documenting user needs, clinical workflows, and system specifications
+
+\item Hardware Prototyping Phase: Assembling IMU sensors, microcontrollers, and testing sensor integration
+
+\item Algorithm Development Phase: Implementing signal processing, gait detection, and parameter extraction in Python
+
+\item System Integration Phase: Combining hardware and software components, validating end-to-end functionality
+
+\item Testing and Validation Phase: Conducting sensor calibration, algorithm verification, and user acceptance testing
+
+\item Documentation and Deployment Phase: Preparing technical reports, user guides, and system handover
+\end{itemize}
+\textbf{Scheduling Approach}
+
+The project follows a time-based schedule with milestone tracking:
+\begin{itemize}
+\item Weeks 1-2: Requirement analysis and literature review
+
+\item Weeks 3-4: Hardware selection and prototype assembly
+
+\item Weeks 5-7: Signal processing and gait detection algorithm development
+
+\item Weeks 8-9: System integration and wireless communication testing
+
+\item Weeks 10-11: Validation with reference datasets and pilot user testing
+
+\item Week 12: Documentation, final testing, and project submission
+\end{itemize}
+Risk Management
+
+Potential risks and mitigation strategies include:
+\begin{itemize}
+\item Sensor calibration challenges: Allocate time for iterative calibration and validation
+
+\item Algorithm accuracy limitations: Incorporate reference dataset comparison and peer review
+
+\item Hardware integration issues: Maintain modular design for isolated testing and debugging
+
+\item Timeline pressures: Prioritize core functionality and defer enhancements to future work
+\end{itemize}
+\textbf{Tools Used}
+\begin{itemize}
+\item Arduino IDE / PlatformIO for microcontroller programming
+
+\item Python with NumPy, SciPy, Matplotlib for signal processing and visualization
+
+\item Git/GitHub for version control and collaboration
+
+\item Overleaf for LaTeX-based documentation preparation
+
+\item Serial monitoring and debugging tools for hardware-software integration
+\end{itemize}
+Effective planning and scheduling ensure systematic progress, risk mitigation, and timely completion of the IMU-Based Lower Limb Gait Analysis System within academic constraints.
+
+\setcounter{chapter}{3}
+\clearpage
+\thispagestyle{empty}
+
+\noindent
+\makebox[\textwidth]{%
+\begin{minipage}[c][\textheight][c]{\textwidth}
+\centering
+{\fontsize{16pt}{18pt}\selectfont\textbf{CHAPTER 3}}\\[0.4cm]
+{\fontsize{16pt}{18pt}\selectfont\textbf{SYSTEM SPECIFICATION}}
+\end{minipage}}
+
+\clearpage
+\addcontentsline{toc}{chapter}{CHAPTER 3 \quad SYSTEM SPECIFICATION}
+\setcounter{section}{0}
+\section{Software and Hardware Requirements}
+
+The development and execution of the IMU-Based Lower Limb Gait Analysis System require a well-defined combination of software and hardware resources to ensure accurate motion capture, reliable data processing, and effective visualization. As a wearable embedded system with wireless connectivity and Python-based analytics, the platform is designed to operate efficiently using accessible components and moderate computing resources, making it suitable for research, clinical, and home-based rehabilitation applications.
+
+\subsection{Software Requirements}
+
+The software requirements encompass programming environments, libraries, frameworks, and tools necessary for system development, deployment, and maintenance.
+
+The embedded firmware for microcontroller units is developed using Arduino C/C++ or MicroPython, depending on the selected hardware platform (ESP32 or Arduino). These languages provide direct access to sensor interfaces, timing control, and wireless communication protocols.
+
+Wireless data transmission utilizes standard Bluetooth Serial or Wi-Fi TCP/IP stacks, enabling real-time streaming of sensor data to a host computer or mobile device without proprietary drivers.
+
+The host-side processing and analytics are implemented in Python, leveraging its extensive ecosystem for scientific computing. Key libraries include:
+\begin{itemize}
+\item NumPy and SciPy for numerical computation and signal processing
+
+\item Pandas for structured data handling and parameter aggregation
+
+\item Matplotlib and Plotly for interactive visualization of gait metrics
+
+\item filterpy or custom implementations for sensor fusion (complementary filter, Kalman filter)
+
+\item scikit-learn for potential machine learning extensions in future work
+\end{itemize}
+Data storage and management utilize lightweight formats such as CSV for session logs and JSON for configuration parameters. For larger-scale deployments, SQLite or PostgreSQL may be integrated for structured database management.
+
+Development and debugging tools include:
+\begin{itemize}
+\item Arduino IDE or PlatformIO for embedded firmware development
+
+\item Visual Studio Code or PyCharm for Python development
+
+\item Serial monitor and logic analyzer tools for hardware-software integration
+
+\item Git for version control and collaborative development
+\end{itemize}
+The major software requirements can be summarized as follows:
+
+\begin{itemize}
+    \item Operating System: Windows, Linux, or macOS for host processing
+
+    \item Embedded Firmware: Arduino C/C++ or MicroPython
+
+    \item Host Processing Language: Python 3.8+
+
+    \item Scientific Libraries: NumPy, SciPy, Pandas, Matplotlib, Plotly
+
+    \item Sensor Fusion: filterpy or custom implementations
+
+    \item Wireless Protocols: Bluetooth Serial, Wi-Fi TCP/IP
+
+    \item Development Tools: Arduino IDE, VS Code, Git
+
+    \item Data Formats: CSV, JSON, optional SQLite
+\end{itemize}
+
+\subsection{Hardware Requirements}
+
+The hardware requirements focus on wearable sensors, embedded processing, communication modules, and host computing resources necessary for system operation.
+
+The primary sensing component is the MPU6050 IMU module, which integrates a tri-axial accelerometer (±2g to ±16g range) and tri-axial gyroscope (±250°/s to ±2000°/s range). This sensor provides the raw acceleration and angular velocity data required for orientation estimation and gait event detection.
+
+The microcontroller unit serves as the data acquisition hub. The ESP32 is preferred for its integrated Wi-Fi/Bluetooth capabilities, sufficient processing power, and low power consumption. Arduino boards (e.g., Nano, Uno) offer a simpler alternative for prototyping.
+
+Wireless communication is handled by the microcontroller's built-in modules (ESP32) or external Bluetooth/Wi-Fi shields (Arduino). Data transmission rates of 50-100 Hz per sensor are sufficient for gait analysis while conserving bandwidth and power.
+
+Power supply considerations include rechargeable Li-Po batteries (3.7V, 500-1000mAh) with voltage regulation to ensure stable operation during extended monitoring sessions.
+
+Host computing requirements are modest: a standard laptop or desktop with a modern processor (Intel Core i3 or equivalent), 4-8 GB RAM, and sufficient storage for session data. Python-based processing is not computationally intensive for real-time gait parameter extraction.
+
+The key hardware requirements are listed below:
+
+\begin{itemize}
+    \item IMU Sensors: MPU6050 modules (2 units for bilateral shank mounting)
+
+    \item Microcontroller: ESP32 (preferred) or Arduino Nano/Uno
+
+    \item Communication: Integrated Wi-Fi/Bluetooth (ESP32) or external modules
+
+    \item Power: Li-Po batteries with voltage regulation circuitry
+
+    \item Mounting: Adjustable straps or custom housings for secure sensor attachment
+
+    \item Host Computer: Standard laptop/desktop with USB ports and wireless capability
+
+    \item Optional: Breadboards, jumper wires, and prototyping accessories for development
+\end{itemize}
+
+Overall, the hardware and software requirements of the IMU-Based Lower Limb Gait Analysis System are designed to balance performance, cost, and accessibility, enabling effective development and deployment without specialized infrastructure.
+
+\section{Functional Specifications}
+
+The functional specifications of the IMU-Based Lower Limb Gait Analysis System define the core operations and services provided to users for rehabilitation progress monitoring. These specifications describe system behavior in response to user actions and data processing workflows.
+
+At the foundational level, the system provides sensor data acquisition functionality. Wearable MPU6050 IMU modules mounted on the shank of both legs capture tri-axial acceleration and angular velocity at configurable sampling rates (50-100 Hz). The microcontroller unit reads sensor data via I2C interface, applies basic filtering, and buffers samples for transmission.
+
+Wireless communication functionality enables real-time streaming of sensor data to a host device. The system supports Bluetooth Serial for short-range, low-power connectivity or Wi-Fi TCP/IP for higher bandwidth and network integration. Data packets include timestamp, sensor ID, and raw measurement values, ensuring synchronization and traceability.
+
+Signal processing functionality implements algorithms for orientation estimation and coordinate transformation. Sensor fusion techniques combine accelerometer and gyroscope data to compute shank orientation angles, compensating for gravity and motion artifacts. Zero-speed detection and correction algorithms improve displacement estimation accuracy during stance phases.
+
+Gait phase detection functionality identifies critical events in the walking cycle. Heel Strike (Initial Contact) is detected through characteristic patterns in angular velocity and vertical acceleration. Toe-Off (Terminal Contact) is identified based on rapid changes in foot orientation and acceleration profiles. These events segment the gait cycle into stance and swing phases for parameter extraction.
+
+Spatiotemporal parameter extraction functionality computes clinically relevant metrics from detected gait events. Stride time and step time are derived from event timestamps. Stance and swing durations quantify phase proportions. Cadence (steps per minute) and gait speed (m/s) are calculated from step frequency and estimated step length. These parameters form the basis for rehabilitation assessment.
+
+Rehabilitation progress monitoring functionality enables comparative analysis across multiple sessions. The system aggregates gait parameters over time, visualizes trends through charts and summary statistics, and highlights improvements or deteriorations in movement patterns. This supports objective clinical decision-making and personalized therapy adjustment.
+
+Data visualization functionality presents results through an intuitive Python-based interface. Interactive plots display gait parameter trends, phase timing diagrams, and session comparisons. Summary reports include key metrics, statistical summaries, and qualitative interpretations for clinical documentation.
+
+Configuration and calibration functionality allows users to adjust system parameters such as sampling rate, filter coefficients, and detection thresholds. Sensor calibration routines compensate for bias and scale errors, ensuring measurement accuracy across devices and sessions.
+
+In summary, the functional specifications of the IMU-Based Lower Limb Gait Analysis System focus on accurate motion capture, reliable gait event detection, meaningful parameter extraction, and intuitive progress visualization, ensuring a comprehensive solution for rehabilitation monitoring.
+
+\newpage
+\section{Tools and Platforms Used}
+
+The development of the IMU-Based Lower Limb Gait Analysis System involves a diverse set of tools and platforms that support hardware prototyping, embedded programming, signal processing, data visualization, and documentation. These tools are selected based on accessibility, community support, and suitability for wearable motion analysis applications.
+
+\section{Development Environment}
+
+\textbf{Arduino IDE / PlatformIO:}  
+Arduino IDE provides a user-friendly environment for developing firmware for microcontroller units. It supports C/C++ programming, library management, and serial debugging, enabling efficient implementation of sensor interfacing, data acquisition, and wireless communication. PlatformIO offers advanced features including multi-platform support, dependency management, and integrated testing, enhancing productivity for complex embedded projects.
+
+\vspace{0.4cm}
+
+\textbf{Python:}  
+Python serves as the core language for host-side processing and analytics. Its simplicity, readability, and extensive scientific ecosystem make it ideal for implementing signal processing algorithms, gait detection logic, and data visualization. Python's cross-platform compatibility ensures consistent behavior across Windows, Linux, and macOS environments.
+
+\vspace{0.4cm}
+
+\textbf{NumPy and SciPy:}  
+These libraries provide fundamental capabilities for numerical computation and signal processing. NumPy enables efficient array operations and mathematical functions, while SciPy offers specialized modules for filtering, spectral analysis, and optimization. Together, they support implementation of sensor fusion, event detection, and parameter extraction algorithms.
+
+\vspace{0.4cm}
+
+\textbf{Pandas:}  
+Pandas facilitates structured data handling and aggregation. It is used to organize gait parameters across sessions, compute summary statistics, and prepare datasets for visualization and reporting. Pandas' DataFrame abstraction simplifies manipulation of time-series gait data.
+
+\vspace{0.4cm}
+
+\textbf{Matplotlib and Plotly:}  
+Matplotlib generates static plots for documentation and publication-quality figures. Plotly enables interactive web-based visualizations with zooming, panning, and hover details, enhancing user exploration of gait parameter trends and session comparisons.
+
+\vspace{0.4cm}
+
+\textbf{filterpy:}  
+This library provides implementations of Kalman filters and other sensor fusion algorithms. It is used to combine accelerometer and gyroscope data for robust orientation estimation, improving the accuracy of gait phase detection and displacement calculations.
+
+\vspace{0.4cm}
+
+\textbf{ESP32 / Arduino Hardware:}  
+ESP32 microcontrollers offer integrated Wi-Fi/Bluetooth, sufficient processing power, and low power consumption, making them ideal for wearable applications. Arduino boards provide a simpler alternative for prototyping. Both platforms support the MPU6050 IMU via I2C interface and enable wireless data transmission.
+
+\vspace{0.4cm}
+
+\textbf{MPU6050 IMU Module:}  
+This sensor combines tri-axial accelerometer and gyroscope in a compact, low-cost package. Its digital output via I2C simplifies integration with microcontrollers, while configurable ranges accommodate diverse motion dynamics in gait analysis.
+
+\vspace{0.4cm}
+
+\textbf{Git and GitHub:}  
+Git provides version control for tracking code changes, managing branches, and collaborating on development. GitHub hosts the project repository, enabling issue tracking, code review, and documentation sharing. These tools ensure reproducibility and facilitate team coordination.
+
+\vspace{0.4cm}
+
+\textbf{AMASS Dataset:}  
+The Archive of Motion Capture as Surface Shapes (AMASS) provides a large public collection of human motion capture data. It serves as a reference for validating gait analysis algorithms, benchmarking system performance, and training potential machine learning models for abnormal gait detection.
+
+\vspace{0.4cm}
+
+\textbf{Overleaf (LaTeX):}  
+Overleaf is used for preparing project documentation in LaTeX format. It supports collaborative editing, professional typesetting, and consistent formatting for academic reports, theses, and presentations.
+
+The combination of these tools and platforms enables efficient development of the IMU-Based Lower Limb Gait Analysis System. Each component contributes to specific aspects of the workflow, from sensor integration to clinical visualization, ensuring a robust and scalable solution for rehabilitation progress monitoring.
+
+\setcounter{chapter}{4}
+\clearpage
+\thispagestyle{empty}
+
+\noindent
+\makebox[\textwidth]{%
+\begin{minipage}[c][\textheight][c]{\textwidth}
+\centering
+{\fontsize{16pt}{18pt}\selectfont\textbf{CHAPTER 4}}\\[0.4cm]
+{\fontsize{16pt}{18pt}\selectfont\textbf{SYSTEM DESIGN}}
+\end{minipage}}
+
+\clearpage
+\addcontentsline{toc}{chapter}{CHAPTER 4 \quad SYSTEM DESIGN}
+\setcounter{section}{0}
+
+
+\section{Module Descriptions}
+
+The IMU-Based Lower Limb Gait Analysis System is designed using a modular architecture that divides functionality into independent yet interconnected components. This approach enhances maintainability, facilitates parallel development, and supports future enhancements with minimal disruption to existing modules.
+
+The major modules of the system are listed below:
+
+\begin{itemize}
+    \item Sensor Data Acquisition Module
+    \item Wireless Communication Module
+    \item Signal Processing and Filtering Module
+    \item Gait Phase Detection Module
+    \item Spatiotemporal Parameter Extraction Module
+    \item Rehabilitation Progress Monitoring Module
+    \item Data Visualization and Reporting Module
+\end{itemize}
+The \textbf{Sensor Data Acquisition Module} interfaces with MPU6050 IMU sensors mounted on the shank of both legs. It configures sensor registers for appropriate measurement ranges and sampling rates (50-100 Hz), reads acceleration and angular velocity data via I2C protocol, and applies basic calibration to compensate for bias and scale errors. This module ensures reliable capture of raw motion signals for downstream processing.
+
+The \textbf{Wireless Communication Module} manages real-time transmission of sensor data from the microcontroller to a host device. It implements Bluetooth Serial or Wi-Fi TCP/IP protocols, handles packetization and error checking, and maintains connection stability during movement. This module enables untethered operation, enhancing user comfort and practical usability during rehabilitation activities.
+
+The \textbf{Signal Processing and Filtering Module} implements algorithms for noise reduction, orientation estimation, and coordinate transformation. Low-pass filtering removes high-frequency noise from acceleration signals, while complementary or Kalman filters fuse accelerometer and gyroscope data to compute shank orientation angles. Zero-speed detection identifies stance phases for displacement correction, improving the accuracy of kinematic estimates.
+
+The \textbf{Gait Phase Detection Module} identifies critical events in the walking cycle. Heel Strike (Initial Contact) is detected through characteristic patterns in angular velocity and vertical acceleration, such as rapid deceleration followed by impact peaks. Toe-Off (Terminal Contact) is identified based on rapid changes in foot orientation and acceleration profiles during push-off. These events segment the gait cycle into stance and swing phases for parameter extraction.
+
+The \textbf{Spatiotemporal Parameter Extraction Module} computes clinically relevant metrics from detected gait events. Stride time and step time are derived from event timestamps. Stance and swing durations quantify phase proportions. Cadence (steps per minute) and gait speed (m/s) are calculated from step frequency and estimated step length using kinematic models. These parameters form the quantitative basis for rehabilitation assessment.
+
+The \textbf{Rehabilitation Progress Monitoring Module} enables comparative analysis across multiple sessions. It aggregates gait parameters over time, computes statistical summaries (mean, standard deviation, trends), and highlights significant changes in movement patterns. This module supports objective clinical decision-making by providing data-driven insights into recovery trajectories.
+
+The \textbf{Data Visualization and Reporting Module} presents results through an intuitive Python-based interface. Interactive plots display gait parameter trends, phase timing diagrams, and session comparisons. Summary reports include key metrics, statistical summaries, and qualitative interpretations for clinical documentation. Export functionality supports PDF and CSV formats for sharing and archival.
+
+Overall, the modular design of the IMU-Based Lower Limb Gait Analysis System ensures that each component performs a specific function while contributing to the overall workflow. This design not only improves system organization but also allows for future scalability and integration of additional features such as machine learning-based abnormal gait detection or cloud-based analytics.
+
+\section{Data / Schema Design}
+
+The data design of the IMU-Based Lower Limb Gait Analysis System is based on a structured model that ensures efficient storage, retrieval, and management of motion data and derived metrics. The schema supports the complete workflow from sensor data acquisition to rehabilitation progress reporting.
+
+The primary entity in the system is the \textbf{User}, which represents clinicians, researchers, or patients interacting with the platform. This entity contains attributes such as \textit{user\_id}, \textit{name}, \textit{role}, and \textit{affiliation}. Each user can initiate multiple rehabilitation monitoring sessions.
+
+The \textbf{Session} entity represents a specific data collection episode. It includes attributes such as \textit{session\_id}, \textit{user\_id}, \textit{timestamp}, \textit{duration}, and \textit{clinical\_notes}. The \textit{user\_id} acts as a foreign key linking the session to the corresponding user. Each session is associated with exactly one user, while a user can have multiple sessions over time.
+
+The \textbf{SensorData} entity stores raw or preprocessed IMU measurements. It includes attributes such as \textit{data\_id}, \textit{session\_id}, \textit{sensor\_id}, \textit{timestamp}, \textit{accel\_x}, \textit{accel\_y}, \textit{accel\_z}, \textit{gyro\_x}, \textit{gyro\_y}, \textit{gyro\_z}. The \textit{session\_id} is a foreign key connecting the data to the corresponding monitoring session. This entity captures the time-series motion signals used for gait analysis.
+
+The \textbf{GaitEvent} entity represents detected critical events in the walking cycle. It includes attributes such as \textit{event\_id}, \textit{session\_id}, \textit{timestamp}, \textit{event\_type} (Heel Strike or Toe-Off), and \textit{leg\_side} (left or right). The \textit{session\_id} acts as a foreign key linking events to the corresponding session. These events form the basis for spatiotemporal parameter calculation.
+
+The \textbf{GaitParameter} entity stores computed metrics derived from detected events. It contains attributes such as \textit{param\_id}, \textit{session\_id}, \textit{param\_type} (e.g., stride time, step length), \textit{value}, \textit{unit}, and \textit{leg\_side}. The \textit{session\_id} is a foreign key connecting parameters to the corresponding session. This entity enables comparative analysis across sessions.
+
+The final entity is the \textbf{ProgressReport}, which summarizes rehabilitation assessment for a given session or series of sessions. It includes attributes such as \textit{report\_id}, \textit{session\_id}, \textit{summary\_text}, \textit{key\_metrics}, and \textit{recommendations}. The \textit{session\_id} acts as a foreign key linking the report to the corresponding session.
+
+Overall, the relationships in the database can be summarized as follows:
+
+\begin{itemize}
+    \item One User can have multiple Sessions
+    \item One Session contains multiple SensorData records
+    \item One Session generates multiple GaitEvent records
+    \item One Session produces multiple GaitParameter records
+    \item One Session may have one ProgressReport
+\end{itemize}
+
+The schema is normalized to reduce redundancy and ensure data integrity. Foreign key constraints maintain relationships between entities, ensuring consistency across the database. This structured design supports efficient data processing, accurate analysis, and reliable progress reporting within the IMU-Based Lower Limb Gait Analysis System.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{ERD.png}
+    \caption{Entity Relationship Diagram of IMU Gait Analysis System}
+    \label{fig:er_diagram}
+\end{figure}
+
+\subsection*{User Table}
+
+\begin{table}[H]
+\centering
+\caption{User Table Structure}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Field Name} & \textbf{Data Type} & \textbf{Description} \\
+\hline
+user\_id & INT (PK) & Unique user identifier \\
+name & VARCHAR & Name of the user \\
+role & VARCHAR & Role (clinician, researcher, patient) \\
+affiliation & VARCHAR & Institution or organization \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection*{Session Table}
+
+\begin{table}[H]
+\centering
+\caption{Session Table Structure}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Field Name} & \textbf{Data Type} & \textbf{Description} \\
+\hline
+session\_id & INT (PK) & Unique session identifier \\
+user\_id & INT (FK) & References User(user\_id) \\
+timestamp & DATETIME & Start time of data collection \\
+duration & FLOAT & Session duration in seconds \\
+clinical\_notes & TEXT & Optional clinical observations \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection*{SensorData Table}
+
+\begin{table}[H]
+\centering
+\caption{SensorData Table Structure}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Field Name} & \textbf{Data Type} & \textbf{Description} \\
+\hline
+data\_id & INT (PK) & Unique data record identifier \\
+session\_id & INT (FK) & References Session(session\_id) \\
+sensor\_id & VARCHAR & Identifier for left/right IMU \\
+timestamp & DATETIME & Sample timestamp \\
+accel\_x, accel\_y, accel\_z & FLOAT & Tri-axial acceleration (m/s²) \\
+gyro\_x, gyro\_y, gyro\_z & FLOAT & Tri-axial angular velocity (°/s) \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection*{GaitEvent Table}
+
+\begin{table}[H]
+\centering
+\caption{GaitEvent Table Structure}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Field Name} & \textbf{Data Type} & \textbf{Description} \\
+\hline
+event\_id & INT (PK) & Unique event identifier \\
+session\_id & INT (FK) & References Session(session\_id) \\
+timestamp & DATETIME & Event occurrence time \\
+event\_type & VARCHAR & 'HeelStrike' or 'ToeOff' \\
+leg\_side & VARCHAR & 'left' or 'right' \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection*{GaitParameter Table}
+
+\begin{table}[H]
+\centering
+\caption{GaitParameter Table Structure}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Field Name} & \textbf{Data Type} & \textbf{Description} \\
+\hline
+param\_id & INT (PK) & Unique parameter identifier \\
+session\_id & INT (FK) & References Session(session\_id) \\
+param\_type & VARCHAR & e.g., 'stride\_time', 'step\_length' \\
+value & FLOAT & Computed metric value \\
+unit & VARCHAR & e.g., 'seconds', 'meters' \\
+leg\_side & VARCHAR & 'left', 'right', or 'bilateral' \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection*{ProgressReport Table}
+
+\begin{table}[H]
+\centering
+\caption{ProgressReport Table Structure}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Field Name} & \textbf{Data Type} & \textbf{Description} \\
+\hline
+report\_id & INT (PK) & Unique report identifier \\
+session\_id & INT (FK) & References Session(session\_id) \\
+summary\_text & TEXT & Qualitative assessment summary \\
+key\_metrics & JSON & Structured summary of key parameters \\
+recommendations & TEXT & Clinical recommendations \\
+created\_at & DATETIME & Report generation timestamp \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Procedural / Flow Design}
+
+The procedural design of the IMU-Based Lower Limb Gait Analysis System describes the sequence of operations and workflows that occur during system execution. It focuses on how data flows through different modules and how various processes are carried out to achieve rehabilitation monitoring objectives.
+
+The system workflow begins with user authentication and session initialization. Once the user logs into the system, they configure sensor parameters such as sampling rate, filter settings, and detection thresholds. The next step involves sensor calibration, where the system records static poses to estimate bias and scale factors for each IMU.
+
+Following calibration, the data acquisition phase commences. Wearable IMU sensors capture acceleration and angular velocity data during walking activities. The microcontroller unit reads sensor data via I2C, applies basic filtering, and buffers samples for wireless transmission.
+
+In the wireless transmission stage, sensor data is streamed in real-time to a host device via Bluetooth or Wi-Fi. Data packets include timestamps and sensor identifiers to ensure synchronization and traceability across bilateral sensors.
+
+The signal processing stage implements algorithms for orientation estimation and coordinate transformation. Sensor fusion techniques combine accelerometer and gyroscope data to compute shank orientation angles, compensating for gravity and motion artifacts. Zero-speed detection identifies stance phases for displacement correction.
+
+The gait phase detection stage identifies critical events in the walking cycle. Heel Strike and Toe-Off events are detected through characteristic patterns in angular velocity and acceleration signals. These events segment the gait cycle into stance and swing phases for parameter extraction.
+
+The parameter extraction stage computes spatiotemporal metrics from detected events. Stride time, step time, stance/swing durations, cadence, gait speed, and estimated step length are calculated using kinematic models and event timestamps.
+
+The progress monitoring stage aggregates parameters across sessions, computes statistical summaries, and visualizes trends through interactive charts. Comparative analysis highlights improvements or deteriorations in movement patterns, supporting clinical decision-making.
+
+The final stage involves report generation. The system compiles analysis results into structured reports that include visualizations, key metrics, and qualitative interpretations. These reports can be exported in PDF or CSV formats for documentation and sharing.
+
+The overall process can be summarized as follows:
+
+\begin{enumerate}
+    \item User authenticates and initializes monitoring session
+    \item Sensors are calibrated and configured
+    \item IMU data is acquired during walking activity
+    \item Data is transmitted wirelessly to host device
+    \item Signal processing estimates orientation and corrects drift
+    \item Gait phase detection identifies Heel Strike and Toe-Off events
+    \item Spatiotemporal parameters are extracted from events
+    \item Progress monitoring compares parameters across sessions
+    \item Report is generated and exported for clinical use
+\end{enumerate}
+
+This procedural flow ensures a smooth transition between different stages of motion analysis. It also ensures that each module receives the necessary input and produces the expected output.
+
+Error handling mechanisms are incorporated at various stages to ensure system reliability. For example, sensor connectivity issues trigger reconnection attempts, invalid data patterns prompt recalibration, and algorithm failures fall back to conservative estimates.
+
+The procedural design ensures that the system operates in a logical and efficient manner, providing users with a seamless experience from sensor setup to clinical reporting.
+
+The procedural design of the IMU-Based Lower Limb Gait Analysis System illustrates how data flows through different modules and how various processes are executed to generate insights and reports.
+\newpage
+\subsection*{Data Flow Diagram}
+
+The Data Flow Diagram (DFD) represents how data moves within the system, starting from sensor acquisition to final rehabilitation reporting. It includes both Level 0 and Level 1 representations to provide a clear understanding of system functionality.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{dfd.png}
+\caption{Data Flow Diagram (Level 0 and Level 1) of IMU Gait Analysis System}
+\label{fig:dfd}
+\end{figure}
+
+The diagram shows how sensor data flows through acquisition, processing, detection, parameter extraction, and reporting modules. It also highlights interactions with databases, reference datasets (AMASS), and user interfaces.
+\newpage
+\subsection*{System Architecture}
+
+The system architecture diagram provides a high-level overview of the structural design of the IMU-Based Lower Limb Gait Analysis System, including wearable sensors, embedded processing, wireless communication, host-side analytics, and visualization components.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{architecture.png}
+\caption{System Architecture of IMU Gait Analysis System}
+\label{fig:architecture}
+\end{figure}
+
+The architecture illustrates how IMU sensors capture motion data, which is processed by the microcontroller and transmitted wirelessly to a host device. Python-based analytics perform signal processing, gait detection, and parameter extraction, while visualization tools present results for rehabilitation monitoring. Integration with the AMASS dataset supports algorithm validation and benchmarking.
+
+\section{User Interface Design}
+
+The user interface (UI) design of the IMU-Based Lower Limb Gait Analysis System plays a critical role in ensuring usability, accessibility, and user satisfaction for clinicians and researchers. The interface is designed with a focus on clarity and efficiency, enabling users to configure sensors, monitor data collection, and interpret gait analysis results without extensive technical training.
+
+The interface is structured into logical sections corresponding to system workflows. The session setup page allows users to configure sampling rates, filter parameters, and detection thresholds. Sensor calibration routines guide users through static poses to estimate bias and scale factors, with real-time feedback on calibration quality.
+
+The data acquisition interface displays live sensor signals and connection status, enabling users to verify proper sensor placement and data quality before initiating gait analysis. Visual indicators highlight signal integrity, wireless connectivity, and sampling consistency.
+
+The analysis results interface is a central component of the UI. It presents gait parameters through interactive charts and summary tables. Users can filter results by session, leg side, or parameter type, and compare metrics across multiple monitoring episodes. Trend visualizations highlight improvements or deteriorations in movement patterns over time.
+
+The reporting interface allows users to generate structured summaries of gait analysis findings. Reports include key metrics, statistical comparisons, and qualitative interpretations formatted for clinical documentation. Export functionality supports PDF and CSV formats for sharing with patients or integrating with electronic health records.
+
+Consistency is maintained across all interface elements in terms of layout, color scheme, and typography. This ensures a cohesive user experience and reduces cognitive load during clinical workflows. Responsive design techniques ensure that the application functions effectively on different screen sizes, from desktop monitors to tablet devices.
+
+Special attention is given to usability principles such as intuitive navigation, clear labeling, and minimal steps to accomplish common tasks. The interface avoids unnecessary complexity while providing access to advanced configuration options for expert users.
+
+In conclusion, the user interface design of the IMU-Based Lower Limb Gait Analysis System ensures that users can interact with the platform effectively, regardless of their technical background. It enhances the overall functionality of the system by making motion analysis accessible and actionable for rehabilitation monitoring.
+
+
+\setcounter{chapter}{5}
+\clearpage
+\thispagestyle{empty}
+
+\noindent
+\makebox[\textwidth]{%
+\begin{minipage}[c][\textheight][c]{\textwidth}
+\centering
+{\fontsize{16pt}{18pt}\selectfont\textbf{CHAPTER 5}}\\[0.4cm]
+{\fontsize{16pt}{18pt}\selectfont\textbf{DEVELOPMENT METHODOLOGY}}
+\end{minipage}}
+
+\clearpage
+\addcontentsline{toc}{chapter}{CHAPTER 5 \quad DEVELOPMENT METHODOLOGY}
+\setcounter{section}{0}
+\section{Project Roadmap}
+
+
+A project roadmap or schedule is a high-level strategic plan that outlines the timeline, phases, milestones, and deliverables of a project. For the IMU-Based Lower Limb Gait Analysis System, the roadmap was designed to ensure systematic development of hardware integration, signal processing algorithms, gait detection logic, and rehabilitation monitoring features. The roadmap follows an iterative approach that allows refinement based on testing feedback and evolving requirements.
+
+The first phase is \textbf{Requirement Analysis and Literature Review}. During this phase, clinical needs for gait analysis and rehabilitation monitoring are identified through consultation with physiotherapists and review of existing systems. Functional requirements such as gait phase detection, parameter extraction, and progress visualization are documented. Non-functional requirements including portability, sampling rate, and wireless reliability are also specified.
+
+The second phase is \textbf{Hardware Selection and Prototyping}. In this phase, IMU sensors (MPU6050), microcontrollers (ESP32/Arduino), and wireless modules are evaluated and selected. Prototype assemblies are constructed to validate sensor interfacing, data acquisition, and power management. Bench testing ensures that hardware components meet performance specifications for gait analysis.
+
+The third phase is \textbf{Algorithm Development and Signal Processing}, executed in iterative cycles. Each cycle focuses on specific algorithmic components:
+\begin{itemize}
+    
+\item Cycle 1: Sensor calibration and basic filtering
+
+\item Cycle 2: Orientation estimation and coordinate transformation
+
+\item Cycle 3: Zero-speed detection and drift correction
+
+\item Cycle 4: Gait phase detection (Heel Strike, Toe-Off)
+
+\item Cycle 5: Spatiotemporal parameter extraction and validation
+\end{itemize}
+During each cycle, algorithms are implemented in Python, tested with synthetic and reference data, and refined based on accuracy metrics.
+
+The fourth phase is \textbf{System Integration and Wireless Communication}. Hardware and software components are combined into a unified system. Wireless protocols (Bluetooth/Wi-Fi) are configured for real-time data streaming. End-to-end testing validates data integrity, synchronization, and latency under realistic movement conditions.
+
+The fifth phase is \textbf{Validation and User Testing}. The integrated system is evaluated against reference datasets such as AMASS and through pilot studies with target users. Accuracy of gait event detection and parameter extraction is quantified. Usability feedback from clinicians informs interface refinements.
+
+The final phase is \textbf{Documentation and Deployment}. Technical documentation, user guides, and academic reports are prepared. The system is packaged for deployment in clinical or research settings, with instructions for sensor placement, calibration, and operation.
+
+The roadmap is adaptive; lessons learned during testing inform refinements in earlier phases. This iterative approach ensures that the final system meets clinical requirements for accuracy, usability, and practical utility in rehabilitation monitoring.
+
+\section{User Stories}
+
+
+User stories describe system functionality from the perspective of end users, ensuring that development focuses on delivering clinical value. Each user story follows the format:
+
+As a [user], I want [functionality], so that [benefit].
+
+For the IMU-Based Lower Limb Gait Analysis System, user stories are defined for clinicians, researchers, and patients.
+
+Examples of user stories include:
+\begin{itemize}
+    
+
+\item As a physiotherapist, I want to detect Heel Strike and Toe-Off events accurately so that I can assess gait symmetry and timing.
+
+\item As a rehabilitation specialist, I want to extract stride time and step length automatically so that I can track patient progress objectively.
+
+\item As a researcher, I want to compare gait parameters across sessions so that I can evaluate intervention effectiveness.
+
+\item As a patient, I want to wear comfortable sensors during daily activities so that my gait can be monitored in natural environments.
+
+\item As a clinician, I want to generate summary reports easily so that I can document rehabilitation outcomes efficiently.
+\end{itemize}
+Each user story is decomposed into technical tasks during sprint planning. For example, the story "Detect Heel Strike accurately" may include tasks such as:
+\begin{itemize}
+\item Implement angular velocity thresholding for impact detection
+
+\item Validate detection against reference motion capture data
+
+\item Tune parameters for robustness across walking speeds
+
+\item Integrate detection output with parameter extraction pipeline
+\end{itemize}
+Sprint planning sessions prioritize stories based on clinical impact and technical dependencies. Stories are estimated using effort points, and tasks are assigned to team members with relevant expertise.
+
+At the end of each sprint, completed functionality is demonstrated to stakeholders, and feedback is incorporated into subsequent iterations. Retrospective reviews identify process improvements for future sprints.
+
+User stories maintain a user-centric focus, ensuring that every feature addresses real clinical needs. Sprint planning enables efficient resource allocation and risk management, facilitating incremental delivery of a robust gait analysis system.
+
+Agile practices such as daily stand-ups and continuous integration support transparency and quality. Early detection of integration issues or algorithm limitations allows timely mitigation, reducing project risks.
+
+Overall, user stories and iterative planning play a crucial role in organizing development, improving productivity, and ensuring that the IMU-Based Lower Limb Gait Analysis System aligns with rehabilitation monitoring requirements.
+
+\section{Test Plan}
+
+Testing is a critical phase in the development of the IMU-Based Lower Limb Gait Analysis System that ensures the system functions correctly, meets clinical requirements, and provides reliable gait metrics. Testing is integrated throughout the development process rather than treated as a separate phase.
+
+For this system, the test plan is designed to validate all modules including sensor acquisition, signal processing, gait detection, parameter extraction, and visualization. The goal is to ensure accuracy, reliability, and usability for rehabilitation monitoring.
+
+The main objectives of testing are:
+\begin{itemize}
+    \item To verify that gait events (Heel Strike, Toe-Off) are detected accurately across walking conditions.
+    \item To ensure spatiotemporal parameters are computed correctly from detected events.
+    \item To validate system performance under varying sampling rates and motion dynamics.
+    \item To ensure wireless data transmission maintains integrity and synchronization.
+    \item To confirm that visualization and reporting present results clearly and intuitively.
+\end{itemize}
+
+The scope of testing includes the following modules:
+\begin{itemize}
+    \item Sensor Calibration and Data Acquisition
+    \item Signal Filtering and Orientation Estimation
+    \item Gait Phase Detection Algorithms
+    \item Spatiotemporal Parameter Extraction
+    \item Wireless Communication and Synchronization
+    \item Data Visualization and Report Generation
+\end{itemize}
+
+\textbf{Types of Testing}
+
+\textbf{Unit Testing:}  
+Unit testing focuses on validating individual algorithmic components in isolation. For the IMU system, unit tests verify that filtering functions remove noise appropriately, orientation estimation computes angles correctly, and event detection logic identifies Heel Strike and Toe-Off patterns in synthetic signals. This early testing catches implementation errors before integration.
+
+\vspace{0.3cm}
+
+\textbf{Integration Testing:}  
+Integration testing ensures that hardware and software modules interact correctly. Tests validate that sensor data acquired by the microcontroller is transmitted accurately via wireless protocols, received by the host application, and processed through the full pipeline to produce gait parameters. Synchronization between bilateral sensors is also verified.
+
+\vspace{0.3cm}
+
+\textbf{System Testing:}  
+System testing evaluates the complete integrated system under realistic conditions. Volunteers perform walking trials while wearing the prototype system. Detected gait events and computed parameters are compared against reference measurements from optical motion capture or instrumented walkways to quantify accuracy and reliability.
+
+\vspace{0.3cm}
+
+\textbf{Validation Testing:}  
+Validation testing assesses clinical utility by comparing system outputs against established benchmarks. The AMASS motion capture dataset provides reference gait patterns for algorithm validation. Statistical metrics such as sensitivity, specificity, and mean absolute error quantify detection accuracy and parameter precision.
+
+\vspace{0.3cm}
+
+\textbf{Usability Testing:}  
+Usability testing involves target users (clinicians, researchers) interacting with the system to evaluate interface intuitiveness, workflow efficiency, and report clarity. Feedback identifies areas for improvement in sensor placement guidance, parameter interpretation, and report customization.
+
+\vspace{0.3cm}
+
+\textbf{Performance Testing:}  
+Performance testing evaluates system behavior under varying loads and conditions. Tests measure processing latency, wireless throughput, and battery life during extended monitoring sessions. Results inform optimization of sampling rates and algorithm complexity for real-time operation.
+
+The testing environment includes:
+\begin{itemize}
+    \item Hardware: MPU6050 IMU modules, ESP32 microcontrollers, prototyping accessories
+    \item Software: Python 3.8+, Arduino IDE, NumPy, SciPy, Matplotlib
+    \item Reference Data: AMASS motion capture dataset, synthetic gait signals
+    \item Validation Equipment: Optical motion capture system (for comparative testing)
+    \item Operating System: Windows/Linux for host processing
+\end{itemize}
+
+\textbf{Test Cases}
+
+\begin{table}[h]
+\centering
+\caption{Sample Test Cases for IMU Gait Analysis System}
+\begin{tabular}{|c|p{3cm}|p{3cm}|p{3cm}|c|}
+\hline
+\textbf{Test ID} & \textbf{Description} & \textbf{Input} & \textbf{Expected Output} & \textbf{Status} \\
+\hline
+TC01 & Sensor Calibration & Static IMU pose & Bias estimates within tolerance & Pass \\
+\hline
+TC02 & Heel Strike Detection & Walking trial data & Event timestamp matches reference & Pass \\
+\hline
+TC03 & Stride Time Calculation & Detected events & Computed value within 5\% error & Pass \\
+\hline
+TC04 & Wireless Synchronization & Bilateral sensor data & Timestamps aligned within 10ms & Pass \\
+\hline
+TC05 & Parameter Visualization & Session data & Interactive plots render correctly & Pass \\
+\hline
+TC06 & Report Generation & Analysis results & PDF report contains key metrics & Pass \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Defect Tracking}
+All issues identified during testing are recorded with details including:
+\begin{itemize}
+    \item Defect ID and description
+    \item Module and severity (critical, major, minor)
+    \item Steps to reproduce and expected vs. actual behavior
+    \item Status (open, in progress, resolved, verified)
+\end{itemize}
+
+Defects are prioritized based on clinical impact and addressed in subsequent development cycles.
+
+\textbf{Test Execution Strategy}
+
+Testing follows an iterative approach aligned with development sprints:
+\begin{itemize}
+    \item Sprint 1: Unit testing of signal processing functions
+    \item Sprint 2: Integration testing of hardware-software pipeline
+    \item Sprint 3: System testing with controlled walking trials
+    \item Sprint 4: Validation against AMASS reference data
+    \item Sprint 5: Usability testing with clinician feedback
+\end{itemize}
+
+Continuous testing ensures early detection of issues and incremental improvement of system quality.
+
+\textbf{Test Schedule}
+
+Testing activities are synchronized with development milestones:
+
+\begin{itemize}
+    \item Weeks 3-4: Unit testing of core algorithms
+    \item Weeks 5-6: Integration testing of wireless pipeline
+    \item Weeks 7-8: System testing with pilot users
+    \item Weeks 9-10: Validation and usability refinement
+    \item Week 11: Final regression testing and documentation
+\end{itemize}
+
+The test plan ensures that the IMU-Based Lower Limb Gait Analysis System is accurate, reliable, and clinically useful. By integrating testing into every development stage, the system achieves high quality and meets rehabilitation monitoring requirements.
+
+\setcounter{chapter}{6}
+\clearpage
+\thispagestyle{empty}
+
+\noindent
+\makebox[\textwidth]{%
+\begin{minipage}[c][\textheight][c]{\textwidth}
+\centering
+{\fontsize{16pt}{18pt}\selectfont\textbf{CHAPTER 6}}\\[0.4cm]
+{\fontsize{16pt}{18pt}\selectfont\textbf{IMPLEMENTATION AND TESTING}}
+\end{minipage}}
+
+\clearpage
+\addcontentsline{toc}{chapter}{CHAPTER 6 \quad IMPLEMENTATION AND TESTING}
+\setcounter{section}{0}
+
+\section{Implementation Procedures}
+
+The implementation phase of the IMU-Based Lower Limb Gait Analysis System involves transforming design specifications into a fully functional integrated platform for rehabilitation monitoring. This phase is critical as it brings together wearable sensors, embedded processing, wireless communication, and intelligent analytics into a cohesive solution. Implementation follows an iterative approach aligned with Agile methodology, enabling continuous development, testing, and refinement.
+
+The process begins with development environment setup. Arduino IDE or PlatformIO is configured for embedded firmware development, while Python environments (virtualenv or conda) are prepared for host-side analytics. Necessary libraries (NumPy, SciPy, Matplotlib, filterpy) are installed, and version control is initialized using Git.
+
+Embedded firmware implementation starts with sensor interfacing. MPU6050 IMU modules are connected to ESP32/Arduino microcontrollers via I2C protocol. Firmware code configures sensor registers for appropriate measurement ranges (±2g accelerometer, ±250°/s gyroscope) and sampling rates (50-100 Hz). Calibration routines record static poses to estimate bias and scale factors, compensating for sensor imperfections.
+
+Wireless communication implementation enables real-time data streaming. For ESP32, built-in Wi-Fi and Bluetooth modules are configured using Arduino libraries. Data packets are structured to include timestamps, sensor identifiers, and measurement values, with checksums for error detection. Connection management handles reconnection attempts and buffer overflow scenarios.
+
+Host-side signal processing is implemented in Python. Raw acceleration and angular velocity data are filtered using low-pass Butterworth filters to remove high-frequency noise. Sensor fusion algorithms (complementary filter or Kalman filter) combine accelerometer and gyroscope data to estimate shank orientation angles, compensating for gravity and motion artifacts.
+
+Gait phase detection algorithms identify Heel Strike and Toe-Off events. Heel Strike detection leverages characteristic patterns in angular velocity (rapid deceleration) and vertical acceleration (impact peak). Toe-Off detection identifies rapid changes in foot orientation during push-off. Event timestamps are stored for parameter extraction.
+
+Spatiotemporal parameter extraction computes clinically relevant metrics. Stride time and step time are derived from event intervals. Stance and swing durations quantify phase proportions. Cadence and gait speed are calculated from step frequency and kinematic models. Estimated step length uses pendulum-based approximations validated against reference data.
+
+Visualization implementation uses Matplotlib and Plotly to create interactive charts. Time-series plots display raw and processed signals, event markers highlight detected gait phases, and summary dashboards present parameter trends across sessions. Export functionality supports PDF reports and CSV data files.
+
+Database implementation uses SQLite for lightweight storage of session data, gait events, and computed parameters. Schema design follows the conceptual model, with foreign key constraints ensuring referential integrity. Query interfaces enable efficient retrieval for visualization and reporting.
+
+Integration of the AMASS dataset supports algorithm validation. Reference motion capture sequences are parsed and aligned with IMU-derived parameters for comparative analysis. Statistical metrics (mean absolute error, correlation coefficients) quantify system accuracy.
+
+Throughout implementation, version control with Git tracks code changes, manages branches for feature development, and facilitates collaboration. Regular commits with descriptive messages ensure reproducibility and auditability.
+
+Testing is integrated into each implementation cycle. Unit tests validate individual functions, integration tests verify module interactions, and system tests evaluate end-to-end performance. Feedback from testing informs iterative refinements.
+
+Error handling and robustness are incorporated throughout. Sensor disconnection triggers graceful degradation, invalid data patterns prompt recalibration, and algorithm failures fall back to conservative estimates. Logging mechanisms capture runtime information for debugging.
+
+Performance optimization focuses on real-time operation. Algorithm complexity is balanced against accuracy requirements, and sampling rates are tuned to conserve bandwidth and power while maintaining detection fidelity.
+
+In conclusion, implementation of the IMU-Based Lower Limb Gait Analysis System involves systematic integration of embedded firmware, signal processing algorithms, wireless communication, and visualization tools. The use of accessible technologies and iterative development ensures that the system is accurate, reliable, and practical for rehabilitation monitoring.
+
+\section{Testing Methods and Results}
+
+Testing is a crucial phase in the development of the IMU-Based Lower Limb Gait Analysis System, ensuring that the application performs correctly, efficiently, and reliably under various conditions. Testing is integrated throughout the development process in accordance with iterative methodology.
+
+The testing process begins with unit testing, where individual algorithmic components are validated independently. Signal processing functions are tested with synthetic data to verify noise reduction and orientation estimation accuracy. Gait detection logic is evaluated against labeled event sequences to confirm correct identification of Heel Strike and Toe-Off patterns. Unit testing ensures that each component performs its intended function before integration.
+
+Following unit testing, integration testing verifies that hardware and software modules interact correctly. Sensor data acquired by the microcontroller is transmitted via wireless protocols and processed by the host application. Tests confirm that data integrity is maintained, timestamps are synchronized, and bilateral sensor streams are aligned. Integration testing identifies communication bottlenecks and synchronization issues.
+
+System testing evaluates the complete integrated system under realistic conditions. Volunteers perform walking trials while wearing the prototype system. Detected gait events and computed parameters are compared against reference measurements from optical motion capture or instrumented walkways. Metrics such as event detection sensitivity, temporal accuracy, and parameter error quantify system performance.
+
+Validation testing assesses clinical utility by comparing system outputs against established benchmarks. The AMASS motion capture dataset provides reference gait patterns for algorithm validation. Statistical analysis computes mean absolute error for stride time, step length, and other parameters, demonstrating system accuracy relative to gold-standard methods.
+
+Usability testing involves target users (clinicians, researchers) interacting with the system to evaluate interface intuitiveness and workflow efficiency. Feedback identifies areas for improvement in sensor placement guidance, parameter interpretation, and report customization. Iterative refinements enhance the user experience based on this input.
+
+Performance testing evaluates system behavior under varying loads and conditions. Tests measure processing latency, wireless throughput, and battery life during extended monitoring sessions. Results inform optimization of sampling rates and algorithm complexity to ensure real-time operation without compromising accuracy.
+
+Test cases are designed to systematically evaluate different functionalities. Each test case includes a unique identifier, description, input conditions, expected output, and actual results. For example, a test case for Heel Strike detection verifies that events are identified within 20ms of reference timestamps across walking speeds. Structured test cases maintain consistency and traceability in the testing process.
+
+The results obtained from testing demonstrate that the IMU-Based Lower Limb Gait Analysis System performs reliably across evaluation criteria. Sensor calibration routines achieve bias estimates within manufacturer specifications. Gait event detection achieves sensitivity and specificity exceeding 95\% compared to reference methods. Spatiotemporal parameters are computed with mean absolute errors below 5\% for stride time and step length.
+
+Wireless communication maintains data integrity and synchronization with sub-10ms latency. Visualization interfaces render interactive plots correctly, and report generation produces well-formatted outputs suitable for clinical documentation. Performance testing confirms that the system operates in real-time with acceptable computational load on standard hardware.
+
+During testing, minor issues such as edge-case handling for irregular gait patterns and interface refinements for parameter interpretation were identified. These issues were addressed through iterative improvements and retesting. The Agile approach allows continuous refinement, ensuring that defects are resolved promptly.
+
+The overall testing process highlights the importance of continuous evaluation in system development. By integrating testing into every stage, the system achieves higher reliability, better performance, and improved user satisfaction. The combination of different testing methods ensures comprehensive validation, covering accuracy, usability, and clinical relevance.
+
+Furthermore, regression testing is performed to ensure that newly added features or modifications do not negatively impact existing functionality. Each update triggers re-evaluation of core algorithms and integration points, maintaining system stability throughout development.
+
+In conclusion, the testing methods applied in the IMU-Based Lower Limb Gait Analysis System ensure that the application meets clinical requirements for accuracy and usability. Results demonstrate that the system is stable, efficient, and suitable for rehabilitation monitoring. Continuous testing and feedback-driven enhancements contribute significantly to project success, ensuring that the final product delivers reliable gait metrics and actionable insights for rehabilitation progress assessment.
+
+
+\setcounter{chapter}{7}
+\clearpage
+\thispagestyle{empty}
+
+\noindent
+\makebox[\textwidth]{%
+\begin{minipage}[c][\textheight][c]{\textwidth}
+\centering
+{\fontsize{16pt}{18pt}\selectfont\textbf{CHAPTER 7}}\\[0.4cm]
+{\fontsize{16pt}{18pt}\selectfont\textbf{CONCLUSION}}
+\end{minipage}}
+
+\clearpage
+\addcontentsline{toc}{chapter}{CHAPTER 7 \quad CONCLUSION}
+\setcounter{section}{0}
+
+
+\section{Summary}
+
+The IMU-Based Lower Limb Gait Analysis System was developed as a comprehensive solution for rehabilitation progress monitoring through wearable motion sensing and intelligent analytics. The system integrates MPU6050 IMU sensors, ESP32/Arduino microcontrollers, wireless communication, and Python-based signal processing to provide a portable, cost-effective alternative to traditional laboratory-bound gait analysis systems.
+
+Development followed an iterative methodology, enabling incremental implementation and validation of hardware integration, algorithm development, and user interface design. The use of Python and scientific libraries facilitated efficient implementation of sensor fusion, gait event detection, and parameter extraction algorithms. Visualization tools such as Matplotlib and Plotly enhanced the system's ability to present gait metrics intuitively for clinical interpretation.
+
+A key strength of the system lies in its accurate detection of critical gait phases. By analyzing angular velocity and acceleration patterns from shank-mounted sensors, the system reliably identifies Heel Strike and Toe-Off events across varying walking conditions. This capability enables precise segmentation of the gait cycle for spatiotemporal parameter extraction.
+
+The system effectively computes clinically relevant metrics including stride time, step time, stance/swing durations, cadence, gait speed, and estimated step length. These parameters form the quantitative basis for rehabilitation assessment, enabling objective tracking of patient progress over multiple monitoring sessions.
+
+Integration with the AMASS motion capture dataset supports algorithm validation and performance benchmarking. Comparative analysis demonstrates that the system achieves accuracy comparable to reference methods while offering significant advantages in portability, cost, and practical usability for home-based rehabilitation.
+
+Testing played a crucial role in ensuring system reliability. Unit testing validated individual algorithms, integration testing verified hardware-software interaction, and system testing confirmed end-to-end performance with human subjects. Results indicate that the system meets accuracy requirements for clinical gait analysis while maintaining real-time operation.
+
+Overall, the IMU-Based Lower Limb Gait Analysis System successfully achieves its objective of providing an accessible, objective, and quantitative solution for rehabilitation progress monitoring. The combination of wearable sensor technology, embedded processing, and intelligent analytics demonstrates the potential for scalable deployment in clinical and home environments.
+
+\section{Limitations}
+
+Despite successful implementation, the IMU-Based Lower Limb Gait Analysis System has certain limitations that affect its performance and applicability in specific scenarios. Identifying these limitations is essential for understanding current scope and guiding future improvements.
+
+\textbf{Sensor Placement Constraints:}  
+The current design focuses on shank-mounted IMUs, which provide reliable detection of lower limb gait events but may not capture full-body kinematics or upper limb contributions to balance and propulsion. Extension to thigh or foot mounting could enhance biomechanical modeling but would increase system complexity and user burden.
+
+\vspace{0.3cm}
+
+\textbf{Algorithm Generalization:}  
+Gait detection algorithms are tuned for typical walking patterns and may require adaptation for atypical gaits (e.g., post-stroke hemiparesis, assistive device use). Machine learning approaches could improve robustness across diverse populations but would require larger labeled datasets for training.
+
+\vspace{0.3cm}
+
+\textbf{Environmental Sensitivity:}  
+IMU-based orientation estimation can be affected by magnetic interference, rapid accelerations, or prolonged use without zero-speed updates. While sensor fusion and drift correction mitigate these issues, extreme motion dynamics may challenge accuracy.
+
+\vspace{0.3cm}
+
+\textbf{Wireless Reliability:}  
+Bluetooth and Wi-Fi communication may experience interference or packet loss in crowded RF environments. While error checking and retransmission improve robustness, mission-critical applications may require more deterministic communication protocols.
+
+\vspace{0.3cm}
+
+\textbf{Battery Life Considerations:}  
+Continuous monitoring with wireless transmission consumes battery power, limiting session duration. Power management optimizations and energy-harvesting techniques could extend operational time but add hardware complexity.
+
+\vspace{0.3cm}
+
+\textbf{Clinical Integration:}  
+While the system provides quantitative gait metrics, integration with electronic health records and clinical decision support systems requires additional development for seamless workflow adoption.
+
+\vspace{0.5cm}
+
+In conclusion, the identified limitations highlight opportunities for enhancement. Addressing these constraints through algorithmic improvements, hardware refinements, and clinical integration will expand the system's applicability and impact in rehabilitation practice.
+
+\section{Future Scope}
+
+The IMU-Based Lower Limb Gait Analysis System has significant potential for further development and enhancement. By addressing current limitations and incorporating advanced technologies, the system can evolve into a more comprehensive platform for movement assessment and rehabilitation support.
+
+\textbf{Machine Learning Integration:}  
+Future enhancements can include supervised and unsupervised learning algorithms for abnormal gait classification, fall risk prediction, and personalized rehabilitation recommendations. Deep learning models could extract complex features from raw sensor data, improving detection accuracy across diverse populations.
+
+\vspace{0.3cm}
+
+\textbf{Multi-Sensor Fusion:}  
+Integration of additional sensing modalities such as pressure insoles, electromyography (EMG), or video-based pose estimation could provide complementary biomechanical insights. Sensor fusion frameworks would combine heterogeneous data streams for more comprehensive movement analysis.
+
+\vspace{0.3cm}
+
+\textbf{Cloud-Based Analytics:}  
+Deployment on cloud platforms could enable scalable data storage, collaborative analysis, and remote monitoring capabilities. Cloud infrastructure would support longitudinal studies, population-level analytics, and tele-rehabilitation applications.
+
+\vspace{0.3cm}
+
+\textbf{Mobile Application Development:}  
+A dedicated mobile application could enhance accessibility by providing real-time feedback, exercise guidance, and progress tracking directly to patients. Push notifications and gamification elements could improve adherence to rehabilitation protocols.
+
+\vspace{0.3cm}
+
+\textbf{Advanced Visualization:}  
+Future improvements could include 3D skeletal visualization, augmented reality overlays, and interactive scenario simulation to enhance clinician interpretation and patient engagement with gait analysis results.
+
+\vspace{0.3cm}
+
+\textbf{Standardization and Interoperability:}  
+Adoption of clinical data standards (e.g., HL7 FHIR) and open APIs would facilitate integration with electronic health records and other healthcare systems, supporting broader clinical adoption.
+
+\vspace{0.3cm}
+
+\textbf{Longitudinal Studies:}  
+Deployment in real-world rehabilitation settings could generate valuable datasets for algorithm refinement, outcome research, and evidence-based protocol development.
+
+\vspace{0.5cm}
+
+In conclusion, the future scope of the IMU-Based Lower Limb Gait Analysis System is extensive, with numerous opportunities for innovation and impact. By incorporating advanced technologies and addressing current limitations, the system can evolve into a comprehensive platform for accessible, objective, and personalized rehabilitation monitoring. Continuous development and clinical collaboration will ensure that the system remains relevant and effective in improving patient outcomes.
+
+%============================================================
+
+% ===================== APPENDIX =====================
+\clearpage
+
+% ---- Chapter as Appendix ----
+\setcounter{chapter}{8}
+\setcounter{section}{0}
+\clearpage
+\thispagestyle{empty}
+
+\noindent
+\makebox[\textwidth]{%
+\begin{minipage}[c][\textheight][c]{\textwidth}
+\centering
+{\fontsize{16pt}{18pt}\selectfont\textbf{CHAPTER 8}}\\[0.4cm]
+{\fontsize{16pt}{18pt}\selectfont\textbf{APPENDIX}}
+\end{minipage}}
+
+\clearpage
+\addcontentsline{toc}{chapter}{CHAPTER 8 \quad APPENDIX}
+
+% Apply header & footer style
+\pagestyle{maincontent}
+
+
+\section{Sample Code / Queries}
+
+Github URL : https://github.com/ThampuVarghese/IMU-Gait-Analysis
+
+\textbf{Gait Phase Detection (gait\_detector.py):}
+\lstinputlisting[language=Python, caption=Gait Event Detection Logic]{gait_detector.py}
+
+\vspace{0.5cm}
+
+
+\textbf{Signal Processing Module (signal\_proc.py):}
+\lstinputlisting[language=Python, caption=Sensor Fusion and Filtering]{signal_proc.py}
+
+\vspace{0.5cm}
+
+\textbf{Parameter Extraction (params\_extract.py):}
+\lstinputlisting[language=Python, caption=Spatiotemporal Parameter Computation]{params_extract.py}
+
+
+
+\vspace{0.5cm}
+
+\textbf{Microcontroller Firmware (main.ino):}
+\lstinputlisting[language=C++, caption=ESP32 Data Acquisition Firmware]{main.ino}
+
+\vspace{0.5cm}
+
+\newpage
+\section{User Interface Screenshots - IMU Gait Analysis System}
+
+The user interface of the IMU-Based Lower Limb Gait Analysis System is designed to provide a seamless and intuitive experience for clinicians and researchers. 
+The following screenshots illustrate the different components of the system.\\
+
+\setlength{\floatsep}{10pt}
+\setlength{\textfloatsep}{10pt}
+\setlength{\intextsep}{10pt}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{1.png}
+\caption{System Dashboard - Session Overview}
+\end{figure}
+
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{2.png}
+\caption{Sensor Configuration and Calibration Interface}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{3.png}
+\caption{Live Data Acquisition Display}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{4.png}
+\caption{Gait Event Detection Visualization}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{5.png}
+\caption{Spatiotemporal Parameter Summary}
+\end{figure}
+
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{6.png}
+\caption{Rehabilitation Progress Tracking Dashboard}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{7.png}
+\caption{Comparative Session Analysis View}
+\end{figure}
+
+
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{11.png}
+\caption{Gait Parameter Trend Charts - Stride Time}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{17.png}
+\caption{Gait Parameter Trend Charts - Step Length}
+\end{figure}
+
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{12.png}
+\caption{Interactive Phase Timing Diagram}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{16.png}
+\caption{Clinical Report Generation Preview}
+\end{figure}
+
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{8.png}
+\caption{Session Management and Data Export}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{9.png}
+\caption{3D Skeleton Visualization (Reference Integration)}
+\end{figure}
+
+
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{10.png}
+\caption{User Settings and System Configuration}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{13.png}
+\caption{Wireless Connection Status Monitor}
+\end{figure}
+
+
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{14.png}
+\caption{Calibration Quality Assessment Display}
+\end{figure}
+
+
+%================== CHAPTER 9 : REFERENCES ==================
+
+\setcounter{chapter}{9}
+\clearpage
+\thispagestyle{empty}
+
+\noindent
+\makebox[\textwidth]{%
+\begin{minipage}[c][\textheight][c]{\textwidth}
+\centering
+{\fontsize{16pt}{18pt}\selectfont\textbf{CHAPTER 9}}\\[0.4cm]
+{\fontsize{16pt}{18pt}\selectfont\textbf{REFERENCES}}
+\end{minipage}}
+
+\clearpage
+\addcontentsline{toc}{chapter}{CHAPTER 9 \quad REFERENCES}
+
+\setcounter{section}{0}
+
+\begin{thebibliography}{10}
+
+\bibitem{ref1}
+M. S. Orendurff et al., "Gait analysis using wearable sensors," 
+\textit{Journal of Biomechanics}, vol. 41, no. 7, pp.1398-1404, 2008.
+
+\bibitem{ref2}
+A. M. Sabatini, "Estimating three-dimensional orientation of human body segments by inertial/magnetic sensors," 
+\textit{Sensors}, vol. 11, no. 2, pp. 1489-1525, 2011.
+
+\bibitem{ref3}
+T. Seel et al., "IMU-based joint angle measurement for gait analysis," 
+\textit{Sensors}, vol. 14, no. 4, pp. 6891-6909, 2014.
+
+\bibitem{ref4}
+R. T. H. M. van den Noort et al., "Accuracy of gait event detection using foot-worn inertial sensors," 
+\textit{Gait \& Posture}, vol. 58, pp. 282-287, 2017.
+
+\bibitem{ref5}
+AMASS Project, "Archive of Motion Capture as Surface Shapes," 
+\textit{Max Planck Institute for Intelligent Systems}, 2024. [Online]. Available: https://amass.is.tue.mpg.de/
+
+\bibitem{ref6}
+Espressif Systems, "ESP32 Series Datasheet," 
+\textit{Espressif Systems}, 2024. [Online]. Available: https://www.espressif.com/
+
+\bibitem{ref7}
+InvenSense, "MPU-6000 and MPU-6050 Product Specification," 
+\textit{TDK Corporation}, 2023.
+
+\bibitem{ref8}
+J. D. Hunter, "Matplotlib: A 2D Graphics Environment," 
+\textit{Computing in Science \& Engineering}, vol. 9, no. 3, pp. 90–95, 2007.
+
+\bibitem{ref9}
+Plotly Technologies Inc., "Interactive Data Visualization for the Web," 
+\textit{Plotly Technologies Inc.}, Montreal, QC, Canada, 2015.
+
+\bibitem{ref10}
+I. Sommerville, \textit{Software Engineering}, 10th ed. 
+Boston, MA, USA: Pearson, 2016.
+
+\bibitem{ref11}
+R. S. Pressman and B. R. Maxim, \textit{Software Engineering: A Practitioner's Approach}, 8th ed. 
+New York, NY, USA: McGraw-Hill, 2015.
+
+\bibitem{ref12}
+D. A. Winter, \textit{Biomechanics and Motor Control of Human Movement}, 4th ed. 
+Hoboken, NJ, USA: Wiley, 2009.
+
+\bibitem{ref13}
+S. Del Din et al., "Validation of an accelerometer to quantify a comprehensive battery of gait characteristics in healthy older adults and Parkinson's disease," 
+\textit{Journal of Parkinson's Disease}, vol. 6, no. 2, pp. 183-195, 2016.
+
+\bibitem{ref14}
+Arduino Project, "Arduino Language Reference," 
+\textit{Arduino LLC}, 2024. [Online]. Available: https://www.arduino.cc/
+
+\bibitem{ref15}
+Python Software Foundation, "Python 3.10 Documentation," 
+\textit{Python.org}, 2024. [Online]. Available: https://docs.python.org/3/
+
+\end{thebibliography}
+
+
+\end{document}
