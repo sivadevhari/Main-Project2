@@ -18,5 +18,7 @@ dist/
 
 # OS/editor files
 .DS_Store
+.env
+.env.*
 Thumbs.db
 .vscode/

@@ -1,0 +1,98 @@
+{
+  "Acne": {
+    "doctor": "Dermatologist",
+    "description": "Specializes in skin conditions including acne, rashes, and other skin disorders"
+  },
+  "Arthritis": {
+    "doctor": "Rheumatologist",
+    "description": "Specializes in joint diseases, arthritis, and musculoskeletal disorders"
+  },
+  "Bronchial Asthma": {
+    "doctor": "Pulmonologist",
+    "description": "Specializes in respiratory conditions including asthma, bronchitis, and lung diseases"
+  },
+  "Cervical spondylosis": {
+    "doctor": "Orthopedic Surgeon / Neurologist",
+    "description": "Specializes in spine disorders and neck-related conditions"
+  },
+  "Chicken pox": {
+    "doctor": "General Physician / Dermatologist",
+    "description": "Viral infection affecting the skin, typically treated by general physicians"
+  },
+  "Common Cold": {
+    "doctor": "General Physician",
+    "description": "Viral upper respiratory infection treated by primary care physicians"
+  },
+  "Dengue": {
+    "doctor": "Infectious Disease Specialist / General Physician",
+    "description": "Mosquito-borne viral infection requiring specialized care"
+  },
+  "Dimorphic Hemorrhoids": {
+    "doctor": "Proctologist / Colorectal Surgeon",
+    "description": "Specializes in rectal and anal conditions including hemorrhoids"
+  },
+  "Fungal infection": {
+    "doctor": "Dermatologist",
+    "description": "Specializes in skin infections including fungal, bacterial, and viral infections"
+  },
+  "Hypertension": {
+    "doctor": "Cardiologist",
+    "description": "Specializes in heart and blood vessel conditions including high blood pressure"
+  },
+  "Impetigo": {
+    "doctor": "Dermatologist",
+    "description": "Bacterial skin infection commonly treated by skin specialists"
+  },
+  "Jaundice": {
+    "doctor": "Gastroenterologist / Hepatologist",
+    "description": "Specializes in liver, gallbladder, and digestive system disorders"
+  },
+  "Malaria": {
+    "doctor": "Infectious Disease Specialist",
+    "description": "Mosquito-borne parasitic infection requiring specialized treatment"
+  },
+  "Migraine": {
+    "doctor": "Neurologist",
+    "description": "Specializes in headaches and nervous system disorders"
+  },
+  "Pneumonia": {
+    "doctor": "Pulmonologist",
+    "description": "Lung infection requiring respiratory specialist care"
+  },
+  "Psoriasis": {
+    "doctor": "Dermatologist",
+    "description": "Chronic autoimmune skin condition requiring specialized skin care"
+  },
+  "Typhoid": {
+    "doctor": "Infectious Disease Specialist / General Physician",
+    "description": "Bacterial infection affecting the digestive system"
+  },
+  "Varicose Veins": {
+    "doctor": "Vascular Surgeon",
+    "description": "Specializes in vein disorders and circulatory system conditions"
+  },
+  "allergy": {
+    "doctor": "Allergist / Immunologist",
+    "description": "Specializes in allergic reactions and immune system disorders"
+  },
+  "diabetes": {
+    "doctor": "Endocrinologist",
+    "description": "Specializes in hormonal disorders including diabetes and thyroid conditions"
+  },
+  "drug reaction": {
+    "doctor": "Allergist / Dermatologist",
+    "description": "Specializes in adverse drug reactions and skin manifestations"
+  },
+  "gastroesophageal reflux disease": {
+    "doctor": "Gastroenterologist",
+    "description": "Specializes in digestive system disorders including acid reflux and GERD"
+  },
+  "peptic ulcer disease": {
+    "doctor": "Gastroenterologist",
+    "description": "Specializes in stomach and intestinal ulcer conditions"
+  },
+  "urinary tract infection": {
+    "doctor": "Urologist / Nephrologist",
+    "description": "Specializes in urinary system infections and kidney disorders"
+  }
+}

@@ -1,19 +1,62 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file
+
+from flask import Flask, request, redirect, url_for, session, flash, send_file, jsonify
 from main import load_model, predict_disease
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from flask_cors import CORS
 from io import BytesIO
-import os
 from fpdf import FPDF
 
+
+
 app = Flask(__name__)
+# Set session cookie for cross-origin (React+Flask dev)
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SECURE'] = False  # Set to True if using HTTPS
+# Restrict CORS to frontend origin for local dev
+CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
 app.secret_key = "your_secret_key_here"
 
 DB_NAME = "users.db"
-DIAGNOSTICS_FILE = "diagnostics.json"
 
 model_data = load_model()
+
+
+# --- DB connection helper must come first ---
+
+# Place this after app = Flask(__name__) and all imports
+@app.route("/session", methods=["GET"])
+def session_info():
+    if "user_id" in session:
+        # Always re-check admin status from database for accuracy
+        current_admin_status = is_admin(session.get("user_email", ""))
+        # Update session if admin status changed
+        if session.get("is_admin") != current_admin_status:
+            session["is_admin"] = current_admin_status
+        print(f"session: user_id={session['user_id']}, email={session['user_email']}, is_admin={current_admin_status}")
+        return jsonify({
+            "logged_in": True,
+            "user": {
+                "id": session["user_id"],
+                "name": session["user_name"],
+                "email": session["user_email"],
+                "address": session["user_address"],
+                "is_admin": current_admin_status
+            }
+        })
+    else:
+        return jsonify({"logged_in": False, "user": None})
+
+# Debug endpoint to check session
+@app.route("/debug_session")
+def debug_session():
+    return jsonify({
+        "session": dict(session),
+        "user_id": session.get("user_id"),
+        "user_name": session.get("user_name"),
+        "user_email": session.get("user_email")
+    })
 
 # --- DB connection helper must come first ---
 def get_db_connection():
@@ -37,6 +80,15 @@ def load_disease_data():
     } for row in rows}
 
 disease_data = load_disease_data()
+
+# Load doctor recommendations from JSON
+def load_doctor_recommendations():
+    import json
+    with open('doctor_recommendations.json', 'r') as f:
+        return json.load(f)
+
+doctor_recommendations = load_doctor_recommendations()
+
 def load_admin_emails():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -69,16 +121,17 @@ def init_db():
         cursor.execute("ALTER TABLE users ADD COLUMN last_login TIMESTAMP")
     conn.commit()
     conn.close()
-    # Initialize diagnostics JSON file (legacy, can be removed)
-    if not os.path.exists(DIAGNOSTICS_FILE):
-        with open(DIAGNOSTICS_FILE, 'w') as f:
-            f.write('[]')
 
 init_db()
 
 def is_admin(email):
-    """Check if user email is in admin list"""
-    return email in ADMIN_EMAILS
+    """Check if user email is in admin list - queries database directly"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT 1 FROM admins WHERE email = ?", (email,))
+    result = cursor.fetchone()
+    conn.close()
+    return result is not None
 
 
 def save_diagnostic_result(user_id, user_email, user_name, address, symptoms, disease, accuracy):
@@ -110,16 +163,23 @@ def save_diagnostic_result(user_id, user_email, user_name, address, symptoms, di
 
 @app.route("/")
 def welcome():
-    user_name = session.get("user_name") if "user_id" in session else None
-    return render_template("welcome.html", user_name=user_name)
+    # React frontend handles this route
+    return jsonify({"message": "Welcome to Disease Prediction System API"})
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
-        name = request.form["name"]
-        address = request.form["address"]
-        email = request.form["email"]
-        password = generate_password_hash(request.form["password"])
+        if request.is_json:
+            data = request.get_json()
+            name = data.get("name")
+            address = data.get("address")
+            email = data.get("email")
+            password = generate_password_hash(data.get("password"))
+        else:
+            name = request.form["name"]
+            address = request.form["address"]
+            email = request.form["email"]
+            password = generate_password_hash(request.form["password"])
 
         try:
             conn = get_db_connection()
@@ -130,24 +190,38 @@ def signup():
             )
             conn.commit()
             conn.close()
-            flash("Account created successfully! Please login.", "success")
-            return redirect(url_for("login"))
+            if request.is_json:
+                return jsonify({"success": True, "message": "Account created successfully! Please login."})
+            else:
+                flash("Account created successfully! Please login.", "success")
+                return redirect(url_for("login"))
         except sqlite3.IntegrityError:
-            flash("Email already exists. Try another one.", "danger")
+            if request.is_json:
+                return jsonify({"success": False, "message": "Email already exists. Try another one."}), 400
+            else:
+                flash("Email already exists. Try another one.", "danger")
 
-    return render_template("signup.html")
+    if request.is_json:
+        return jsonify({"success": False, "message": "Invalid request method."}), 405
+    # React frontend handles signup page
+    return jsonify({"success": False, "message": "Please use React frontend for signup"})
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = request.form["email"]
-        password = request.form["password"]
+        if request.is_json:
+            data = request.get_json()
+            email = data.get("email")
+            password = data.get("password")
+        else:
+            email = request.form["email"]
+            password = request.form["password"]
 
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
         user = cursor.fetchone()
-        
+
         if user and check_password_hash(user['password'], password):
             # Update last login time
             cursor.execute(
@@ -156,69 +230,88 @@ def login():
             )
             conn.commit()
             
+            # Check admin status
+            admin_status = is_admin(email)
+            print(f"Login: {email} - is_admin: {admin_status}")
+            
             session["user_id"] = user['id']
             session["user_name"] = user['name']
             session["user_email"] = user['email']
             session["user_address"] = user['address']
-            session["is_admin"] = is_admin(email)
-            
-            flash("Login successful!", "success")
+            session["is_admin"] = admin_status
             conn.close()
-            return redirect(url_for("home"))
+            if request.is_json:
+                return jsonify({"success": True, "message": "Login successful!", "user": {"id": user['id'], "name": user['name'], "email": user['email'], "address": user['address'], "is_admin": admin_status}})
+            else:
+                flash("Login successful!", "success")
+                return redirect(url_for("home"))
         else:
-            flash("Invalid email or password.", "danger")
-        
-        conn.close()
+            conn.close()
+            if request.is_json:
+                return jsonify({"success": False, "message": "Invalid email or password."}), 401
+            else:
+                flash("Invalid email or password.", "danger")
 
-    return render_template("login.html")
+    if request.is_json:
+        return jsonify({"success": False, "message": "Invalid request method."}), 405
+    # React frontend handles login page
+    return jsonify({"success": False, "message": "Please use React frontend for login"})
 
 @app.route("/logout")
 def logout():
-    return render_template("logout.html")
+    # React frontend handles logout page
+    return jsonify({"success": True, "message": "Logged out successfully"})
 
 @app.route("/logout_confirm")
 def logout_confirm():
     session.clear()
     flash("Logged out successfully.", "info")
+    # Check if request is from React (JSON request)
+    if request.is_json or request.headers.get('Accept') == 'application/json':
+        return jsonify({"success": True, "message": "Logged out successfully"})
     return redirect(url_for("login"))
 
-@app.route("/predict_tool")
-def home():
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-    return render_template("index.html", user_name=session.get("user_name"))
 
 @app.route("/predict", methods=["POST"])
 def predict():
     if "user_id" not in session:
-        return redirect(url_for("login"))
-
-    symptoms = request.form["symptoms"]
+        return jsonify({"success": False, "message": "Unauthorized. Please login."}), 401
+        
+    data = request.get_json()
+    symptoms = data.get("symptoms", "")
     disease = predict_disease(model_data, symptoms)
     info = disease_data.get(disease, {})
-    user_name = session.get("user_name")
-    user_email = session.get("user_email")
-    user_address = session.get("user_address")
-    user_id = session.get("user_id")
     accuracy = model_data.get("accuracy", 0)
     
-    # Save diagnostic result
-    save_diagnostic_result(
-        user_id, user_email, user_name, user_address,
-        symptoms, disease, f"{accuracy:.2%}"
-    )
-
-    return render_template(
-        "result.html",
-        disease=disease,
-        description=info.get("description"),
-        causes=info.get("causes"),
-        precautions=info.get("precautions"),
-        image=info.get("image"),
-        user_name=user_name,
+    # Save diagnostic result to database
+    diagnostic = save_diagnostic_result(
+        user_id=session["user_id"],
+        user_email=session["user_email"],
+        user_name=session["user_name"],
+        address=session.get("user_address", ""),
         symptoms=symptoms,
+        disease=disease,
         accuracy=f"{accuracy:.2%}"
     )
+
+    # Get doctor recommendation
+    doctor_info = doctor_recommendations.get(disease, {
+        "doctor": "General Physician",
+        "description": "Primary care physician for general health concerns"
+    })
+
+    return jsonify({
+        "success": True,
+        "disease": disease,
+        "description": info.get("description"),
+        "causes": info.get("causes"),
+        "precautions": info.get("precautions"),
+        "image": info.get("image", "default.jpg"),
+        "accuracy": f"{accuracy:.2%}",
+        "diagnostic_id": diagnostic["id"],
+        "doctor": doctor_info.get("doctor"),
+        "doctor_description": doctor_info.get("description")
+    })
 
 @app.route("/download_report", methods=["POST"])
 def download_report():
@@ -348,15 +441,22 @@ Disclaimer: Not a replacement for professional medical advice.
 
 @app.route("/admin_panel")
 def admin_panel():
-    if "user_id" not in session or not session.get("is_admin"):
-        return redirect(url_for("login"))
+    # Always return JSON for API requests
+    if "user_id" not in session:
+        return jsonify({"success": False, "message": "Please login to access admin panel"}), 401
+    
+    # Re-check admin status from database directly  
+    email = session.get('user_email', '')
+    actual_admin_status = is_admin(email)
+    
+    if not actual_admin_status:
+        return jsonify({"success": False, "message": "Admin access required"}), 403
     
     # Get all users
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT id, name, email, address, last_login FROM users ORDER BY last_login DESC")
-    users = cursor.fetchall()
-    
+    users = [dict(row) for row in cursor.fetchall()]
 
     # Read diagnostics from SQLite
     conn = get_db_connection()
@@ -376,18 +476,54 @@ def admin_panel():
     # Sort by timestamp (most recent first)
     for uid in user_diagnostics:
         user_diagnostics[uid].sort(key=lambda x: x.get("timestamp", ""), reverse=True)
-    
+
     user_name = session.get("user_name")
-    return render_template(
-        "admin_panel.html",
-        users=users,
-        user_diagnostics=user_diagnostics,
-        user_name=user_name
-    )
+    return jsonify({
+        "success": True,
+        "users": users,
+        "user_diagnostics": user_diagnostics,
+        "user_name": user_name
+    })
+
+@app.route("/admin/user/<int:user_id>")
+def admin_user_history(user_id):
+    """Get diagnostics for a specific user (admin only)"""
+    if "user_id" not in session:
+        return jsonify({"success": False, "message": "Please login"}), 401
+    
+    email = session.get('user_email', '')
+    if not is_admin(email):
+        return jsonify({"success": False, "message": "Admin access required"}), 403
+    
+    # Get user info
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, name, email, address, last_login FROM users WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    conn.close()
+    
+    if not user:
+        return jsonify({"success": False, "message": "User not found"}), 404
+    
+    # Get user's diagnostics
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM diagnostics WHERE user_id = ? ORDER BY timestamp DESC", (user_id,))
+    diagnostics = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    
+    return jsonify({
+        "success": True,
+        "user": dict(user),
+        "diagnostics": diagnostics
+    })
 
 @app.route("/history")
 def history():
     if "user_id" not in session:
+        # Check if this is a JSON/API request
+        if request.is_json or request.headers.get('Accept') == 'application/json':
+            return jsonify({"success": False, "message": "Unauthorized"}), 401
         return redirect(url_for("login"))
     user_id = session["user_id"]
     conn = get_db_connection()
@@ -395,7 +531,11 @@ def history():
     cursor.execute("SELECT * FROM diagnostics WHERE user_id = ? ORDER BY timestamp DESC", (user_id,))
     diagnostics = [dict(row) for row in cursor.fetchall()]
     conn.close()
-    return render_template("history.html", diagnostics=diagnostics, user_name=session.get("user_name"))
+    return jsonify({
+        "success": True,
+        "diagnostics": diagnostics,
+        "user_name": session.get("user_name")
+    })
 
 # Download previous report by id
 @app.route("/download_report/<int:diag_id>")
